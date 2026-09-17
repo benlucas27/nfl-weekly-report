@@ -14,6 +14,11 @@ gets generated and sent.
 - [The Odds API](https://the-odds-api.com) — free tier for spreads/moneylines/totals.
   Player props aren't on the free tier; prop leans come from tracked sources instead
   (see the runbook).
+- [nflverse-data](https://github.com/nflverse/nflverse-data) — free, no key, historical
+  play-by-play/schedule data back to 1999. Backs every prop pick with real form,
+  primetime, and opponent-defense splits (`pipeline/prop_stats.py`), and powers
+  one-off situational research like "how do new-stadium debuts trend historically"
+  (`pipeline/situational_splits.py`).
 - A weekly cloud-scheduled Claude agent runs the actual report pipeline and pushes
   the result to this repo, which auto-redeploys on Vercel.
 
@@ -51,7 +56,22 @@ api/
 reports/
   index.json            archive metadata, newest first
 pipeline/
-  RUNBOOK.md            what the weekly scheduled agent does, step by step
+  RUNBOOK.md             what the weekly scheduled agent does, step by step
+  prop_stats.py           per-player prop stats: L5/primetime hit rate, opp defense rank
+  situational_splits.py   historical cohort trends (e.g. new-stadium debuts)
+  situations/*.json       curated instance lists that situational_splits.py joins against
+```
+
+## Pipeline tools
+
+Both scripts are pure Python stdlib (no `pip install`) and pull straight from
+nflverse-data's free CSV releases, caching them in `pipeline/.cache/` for the day:
+
+```bash
+python3 pipeline/prop_stats.py --player "Puka Nacua" --opponent SF \
+  --stat receiving_yards --line 79.5
+
+python3 pipeline/situational_splits.py --situation new_stadium_debut --scope season
 ```
 
 ## Send day

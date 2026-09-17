@@ -1,0 +1,25 @@
+{
+  "situation": "new_stadium_debut",
+  "description": "A team's first season playing home games in a brand-new stadium building (not a renaming, not a renovation of the same bowl). Sourced from Wikipedia's chronology of NFL stadiums and ESPN's new-stadium-debuts retrospective, September 2026.",
+  "instances": [
+    { "team": "CIN", "season": 2000, "stadium": "Paul Brown Stadium" },
+    { "team": "PIT", "season": 2001, "stadium": "Heinz Field" },
+    { "team": "DEN", "season": 2001, "stadium": "Invesco Field at Mile High" },
+    { "team": "NE",  "season": 2002, "stadium": "Gillette Stadium" },
+    { "team": "SEA", "season": 2002, "stadium": "Seahawks Stadium" },
+    { "team": "DET", "season": 2002, "stadium": "Ford Field" },
+    { "team": "HOU", "season": 2002, "stadium": "Reliant Stadium", "notes": "Also the franchise's first-ever season (2002 expansion team) — no prior-team baseline, confounded with a rookie roster." },
+    { "team": "ARI", "season": 2006, "stadium": "University of Phoenix Stadium" },
+    { "team": "IND", "season": 2008, "stadium": "Lucas Oil Stadium" },
+    { "team": "DAL", "season": 2009, "stadium": "Cowboys Stadium" },
+    { "team": "NYG", "season": 2010, "stadium": "MetLife Stadium" },
+    { "team": "NYJ", "season": 2010, "stadium": "MetLife Stadium", "notes": "Shared venue/season with NYG — same confounds." },
+    { "team": "SF",  "season": 2014, "stadium": "Levi's Stadium" },
+    { "team": "MIN", "season": 2016, "stadium": "U.S. Bank Stadium" },
+    { "team": "ATL", "season": 2017, "stadium": "Mercedes-Benz Stadium" },
+    { "team": "LV",  "season": 2020, "stadium": "Allegiant Stadium", "notes": "COVID-19 season — games played with no fans in attendance, a major confound for any 'new building energy' theory." },
+    { "team": "LA",  "season": 2020, "stadium": "SoFi Stadium", "notes": "COVID-19 season — no fans in attendance." },
+    { "team": "LAC", "season": 2020, "stadium": "SoFi Stadium", "notes": "COVID-19 season — no fans in attendance. Also a tenant, not the primary team associated with the building." },
+    { "team": "BUF", "season": 2026, "stadium": "Highmark Stadium" }
+  ]
+}

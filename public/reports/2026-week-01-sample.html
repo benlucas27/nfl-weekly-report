@@ -3,52 +3,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Week 1 Consensus Report (sample) — NFL Weekly</title>
+  <title>Week 2 Consensus Report (sample) — NFL Weekly</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="wrap">
-    <span class="tag">Sample · Week 1 · 2026-09-10</span>
-    <h1>Week 1 Consensus Report</h1>
-    <p style="color: var(--muted)">
-      This is a placeholder showing the report structure the weekly pipeline fills in.
-      Nothing below is a real pick.
+    <span class="tag">Sample · Week 2 · 2026-09-17</span>
+    <h1>Week 2 Consensus Report</h1>
+    <p class="lede">
+      This is a template/sample showing the report structure and the kind of
+      stats-backed reasoning each pick gets. Numbers in the "Situational Angle" and
+      prop stat-lines below are pulled from real nflverse historical data as a design
+      example — everything else on this page is placeholder.
     </p>
 
     <h2>Headline Leans</h2>
-    <div class="card lean">
-      <div class="market">Chiefs -2.5 vs Ravens</div>
-      <div class="why">Two of three tracked sources leaning Chiefs; line opened -1.5 and has moved toward Chiefs despite ~55% of public bets on Ravens — sharp-side move.</div>
+    <p class="section-note">Plays where 2+ tracked sources independently agree.</p>
+
+    <div class="pick">
+      <div class="head">
+        <span class="market">Chiefs −2.5 vs Ravens</span>
+        <span class="label lean">Lean</span>
+      </div>
+      <p class="why">Line opened −1.5 and has moved toward Chiefs despite public money skewing Ravens — sharp-side move.</p>
       <div class="sources">Agreed: Hold the Line, Dr. Locks MD</div>
     </div>
 
     <h2>Player Yardage &amp; Prop Leans</h2>
-    <div class="card lean">
-      <div class="market">Puka Nacua Over 79.5 receiving yards</div>
-      <div class="why">Favorable coverage matchup flagged independently by two sources; no alt-line data pulled this week (props API not yet connected).</div>
+    <p class="section-note">Backed by L5 form, primetime hit rate, and opponent defense-vs-position — not just a source's word.</p>
+
+    <div class="pick">
+      <div class="head">
+        <span class="market">Ja'Marr Chase Over 65.5 receiving yards</span>
+        <span class="label lean">Lean</span>
+      </div>
+      <p class="why">Favorable coverage matchup vs. a defense that's middling against WRs; form has been strong and steady.</p>
+      <div class="stat-line">
+        L5 <b>5/5</b> over<span class="sep">·</span>
+        Primetime (3yr) <b>17/21</b> over<span class="sep">·</span>
+        Season avg <b>100.5</b> yds<span class="sep">·</span>
+        Opp defense vs WR <b>9th</b> of 32 in yards allowed
+      </div>
       <div class="sources">Agreed: Hold the Line, Dr. Locks MD</div>
     </div>
 
+    <h2>Situational Angle</h2>
+    <p class="section-note">
+      A historical cohort pattern, not tied to this week's creator picks — run through
+      <code>situational_splits.py</code> against real play-by-play/schedule history.
+    </p>
+
+    <div class="pick">
+      <div class="head">
+        <span class="market">New-stadium debuts &amp; the total — Bills' Highmark Stadium opener vs. Lions</span>
+        <span class="label fade">Data angle</span>
+      </div>
+      <p class="why">
+        Buffalo opened Highmark Stadium hosting Detroit this week — the 19th
+        ground-up new-stadium debut since 2000. Two ways to slice the history:
+      </p>
+      <div class="stat-line">
+        Debut game only (n=18 scored) <b>9–9</b> over/under — a coin flip, no edge
+      </div>
+      <div class="stat-line">
+        Full debut season, all home games (n=143 scored) <b>62 over – 81 under</b>
+        (<b>57%</b> under) — a real lean toward the under across the bigger sample
+      </div>
+      <p class="why" style="margin-top:10px;">
+        Lead rusher in the debut game: averaged <b>+5.0 yards</b> above their own
+        season baseline, hitting above it in exactly half of instances (n=18) — no
+        usable signal either way. Read this as: the "new stadium magic" theory holds
+        up a little for full-season unders, not at all for a single-game rushing pop.
+        Two of the 19 instances (LV/LA 2020) were played with no fans due to COVID —
+        a real confound worth knowing about, not excluded from the numbers above.
+      </p>
+    </div>
+
     <h2>Fade-the-Public</h2>
-    <div class="card">
-      <div class="market">Under 47.5 — Bengals @ Patriots</div>
-      <div class="why">Public money lopsided toward the Over; line hasn't moved with it, suggesting book is comfortable taking that action.</div>
+    <div class="pick">
+      <div class="head">
+        <span class="market">Under 47.5 — Bengals @ Patriots</span>
+        <span class="label fade">Fade</span>
+      </div>
+      <p class="why">Public money lopsided toward the Over; the line hasn't moved with it, suggesting the book is comfortable taking that side.</p>
     </div>
 
     <h2>Key Matchup Breakdowns</h2>
-    <div class="card">
-      <div class="market">Chiefs @ Ravens</div>
-      <div class="why">Placeholder breakdown — injuries, pace, weather, and trend notes go here.</div>
+    <div class="pick">
+      <div class="head"><span class="market">Chiefs @ Ravens</span></div>
+      <p class="why">Placeholder breakdown — injuries, pace, weather, and trend notes go here.</p>
     </div>
 
     <h2>Games to Avoid</h2>
-    <div class="card avoid">
-      <div class="market">Jaguars @ Panthers total</div>
-      <div class="why">No source consensus and the line has moved 3+ points in both directions this week — low conviction either way.</div>
+    <div class="pick">
+      <div class="head">
+        <span class="market">Jaguars @ Panthers total</span>
+        <span class="label avoid">Avoid</span>
+      </div>
+      <p class="why">No source consensus and the line has moved 3+ points in both directions this week — low conviction either way.</p>
     </div>
 
     <h2>Last Week's Track Record</h2>
-    <p style="color: var(--muted)">No history yet — this fills in from Week 2 onward.</p>
+    <p class="section-note">No history yet — this fills in from Week 3 onward.</p>
 
     <div class="footer-nav">
       <a href="/archive.html">← All reports</a>
