@@ -37,12 +37,17 @@ What's left:
    (framework preset: "Other"), add environment variables `RESEND_API_KEY`,
    `RESEND_AUDIENCE_ID`, `ODDS_API_KEY`, deploy. Landing page at `/`, archive at
    `/archive.html`. In progress as of this commit.
-2. **The weekly scheduled agent** — not yet created. Needs to run
-   `pipeline/RUNBOOK.md`'s steps on a Thursday-AEST cron, with `RESEND_FROM_EMAIL`
-   also available to it (only `send_report.py` needs this one; it's not a Vercel
-   env var since Vercel never sends the email itself).
-3. **More tracked sources** — still just two (Hold the Line, Dr. Locks MD). The
-   "2+ sources agree" consensus rule needs more than two total sources to mean much.
+2. **The weekly scheduled agent** — attempted, blocked: the cloud routines system
+   doesn't have access to this GitHub repo yet (403 on creation). Needs the repo
+   added to whatever GitHub App/connector Claude Code's cloud routines use, plus
+   `RESEND_API_KEY`/`RESEND_AUDIENCE_ID`/`RESEND_FROM_EMAIL`/`ODDS_API_KEY` set on
+   the routine's cloud environment (no local `.env.local` access there). Configured
+   for Thursday 8am AEST, draft-only (no `--send`) for the first few weeks per the
+   owner's request — ready to retry once access is granted.
+3. ~~More tracked sources~~ — done. 7 total now: Hold the Line, Dr. Locks MD, Bet
+   the Board (Todd Fuhrman), Sean Koerner/Action Network, Bob Stoll/Dr. Bob Sports,
+   VSiN, and NFL Pickwatch (a free mainstream-media consensus aggregator, not an
+   individual voice — see `pipeline/RUNBOOK.md` for how it's weighted differently).
 
 Local dev for the site itself:
 ```bash

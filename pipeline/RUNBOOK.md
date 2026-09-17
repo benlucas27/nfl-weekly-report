@@ -28,10 +28,33 @@ Thursday Night Football kicks off).
     the best matchup for the prop). `--stat` supports `receiving_yards`,
     `rushing_yards`, `passing_yards`, `receptions`. It caches the two source CSVs
     for ~20h so a week's worth of lookups only downloads each file once.
-- Tracked source list (edit this list as leans/confidence in creators changes):
-  - Hold the Line (podcast + @HoldtheLinePod)
-  - Dr. Locks MD (Facebook "Dr Locks MD", Instagram @dr.locks.md, X @DrLocksMD)
-  - [add more here once confirmed — aim for 3-4+ independent voices]
+- Tracked source list (edit this list as leans/confidence in creators changes; each
+  entry was checked for two things — real/established, and has genuinely public
+  content, not just a paywalled teaser):
+  - **Hold the Line** — podcast, X @HoldtheLinePod
+  - **Dr. Locks MD** — Facebook "Dr Locks MD", Instagram @dr.locks.md, X @DrLocksMD
+  - **Bet the Board** — podcast (X @BetTheBoardPod), hosted by Todd Fuhrman (former
+    Caesars Sportsbook oddsmaker, FS1's lead gambling analyst on Fox Sports' Lock It
+    In) and Payne (payneinsider.com). Free newsletter with additional best bets.
+  - **Sean Koerner ("The Oddsmaker")** — Action Network's model-based picks, X
+    @The_Oddsmaker. His on-air picks record is publicly tracked and openly
+    published including losing stretches — a good sign this isn't a hype account.
+    Use his free/public posts only; Action Network's deeper PRO content is paywalled.
+  - **Bob Stoll (Dr. Bob Sports)** — drbobsports.com, X @DrBobSports. Handicapping
+    since 1987, WSJ-featured, ESPN E:60 segment, syndicated widely; publicly
+    transparent about his own record trending down in recent years, which is
+    exactly the kind of source worth trusting more, not less.
+  - **VSiN (Vegas Stats & Information Network)** — the closest thing here to an
+    institutional source: a real Las Vegas broadcast network (SiriusXM channel,
+    founded by Brent Musburger's family) staffed by actual Nevada oddsmakers
+    (Jimmy Vaccaro, Vinny Magliulo, Chris Andrews). Free podcasts/shows at vsin.com.
+  - **NFL Pickwatch** (nflpickwatch.com) — not a single creator; a free tool that
+    already aggregates and scores ATS/O-U/moneyline picks from ESPN, CBS, PFF, and
+    other mainstream media experts, with live consensus percentages. Treat this as
+    a shortcut to mainstream-media consensus rather than one more individual voice
+    to average in — it's already doing a version of what this whole pipeline does,
+    just for institutional pundits instead of independent handicappers.
+  - [add more here as they're found and verified — same two checks: real/established, genuinely public]
 - Public betting-percentage signal: whatever is visible on Action Network's free
   public-betting page, plus any explicit "public is on X, I'm on Y" calls from tracked
   sources. Full split data is PRO-gated — do not attempt to bypass that paywall.
@@ -73,7 +96,13 @@ Thursday Night Football kicks off).
    pick, say so — don't quietly drop the conflict.
 
 4. **Find consensus.** A market becomes a "Headline Lean" only when 2+ tracked
-   sources independently land on the same side. Note which sources agreed.
+   sources independently land on the same side. Note which sources agreed. NFL
+   Pickwatch counts as one source for this count (its own mainstream-consensus %
+   is one data point, not a vote per underlying expert) — but when an independent
+   handicapper lean is ALSO backed by Pickwatch's mainstream consensus, say so
+   explicitly ("X and Y agree, and it's also the mainstream media consensus") —
+   that's a meaningfully different, stronger claim than two independent voices
+   agreeing with each other alone.
 
 5. **Check public-money signal.** Where a line hasn't moved despite lopsided public
    backing on one side, flag the other side as a "Fade the Public" candidate. Don't
