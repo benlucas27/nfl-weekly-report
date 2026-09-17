@@ -38,10 +38,15 @@ Thursday Night Football kicks off).
 - Injuries: ESPN, NFL.com. Pregame weather forecast for outdoor stadiums (games.csv
   only has actual temp/wind for games already played): a free weather API.
 - **Situational pattern engine** (`pipeline/situational_splits.py` +
-  `pipeline/situations/*.json`) — for "unique angle" trends that aren't tied to one
-  player's game log: cohorts like "team debuting a new stadium," joined against
-  games.csv/player_stats.csv to get over/under record and lead-rusher performance
-  vs. their own season baseline for that cohort. See "Situational angles" below.
+  `pipeline/situations/*.json`) — for hand-curated, real-world cohorts that can't be
+  derived from the schedule columns alone: "team debuting a new stadium," "coaching
+  change," etc. See "Situational angles" below.
+- **Historical screen** (`pipeline/historical_screen.py`) — a much broader, fully
+  automatic scan of 37+ structural cohorts (rest days, weather, spread size,
+  divisional, weekday/slot, momentum, and compounds of those) across 1999-2026, run
+  with `--scan` to surface only the ones that clear a real edge threshold. This is
+  the primary tool for "strong signal" angles — see "Reading historical_screen.py
+  output" below before using its numbers in a report.
 
 ## Steps
 
@@ -73,13 +78,21 @@ Thursday Night Football kicks off).
    key matchups. Historical team trends (ATS/O-U in primetime, by roof/surface) are
    derivable from `games.csv` the same way the player stats are.
 
-7. **Check for a situational angle.** Scan this week's slate for anything matching an
-   existing entry in `pipeline/situations/` (new-stadium debut, short week, revenge
-   game, etc. — see below) or worth adding as a new one. Run
-   `situational_splits.py` and include the finding only if the sample is honestly
-   reported with its size and caveats — a coin-flip result ("over rate 0.50") is
-   itself a useful, honest thing to publish; don't discard a null result and go
-   looking for a different cohort that "worked."
+7. **Check for a situational angle.** Two tools, two jobs:
+   - `python3 historical_screen.py --scan` — run every week regardless of slate.
+     Cross-reference the signals it returns (real edges only, see below) against
+     which teams are actually in that situation this week (e.g. it says
+     "home_big_favorite" is a real rushing-volume signal — is any home team a 10+
+     favorite this week? If so, that's a data-backed RB volume lean for the report).
+   - `situational_splits.py` — only when this week's slate has something matching an
+     existing hand-curated cohort in `pipeline/situations/` (new-stadium debut,
+     coaching change, etc.), or something worth curating as a new one.
+   Include a finding only with its real sample size and caveats attached. A
+   coin-flip/null result is still worth publishing when it debunks a popular
+   narrative (see "letdown spot" and "revenge game" in the historical_screen output
+   — neither clears a real edge threshold across 25+ years of data, which is itself
+   worth telling subscribers). Don't discard a null result and go hunting for a
+   different cohort that "worked" instead.
 
 8. **Flag games to avoid.** Games with no source consensus, high line volatility
    this week, or an unresolved injury situation. State why.
@@ -102,6 +115,30 @@ Thursday Night Football kicks off).
     for last week's headline leans and record win/loss in the track-record section
     (mirrors the history-tracking pattern from the NRL report pipeline).
 
+## Reading historical_screen.py output
+
+The closing spread and total are a genuinely efficient market — no structural filter
+here moves the Over/Under or ATS rate against the closing line by more than ~7 points
+even at the extremes (`--scan` defaults: min sample 60, min edge 0.07 rate-points /
+0.12 relative). Don't manufacture a bigger "beat the closing line" edge than that; it
+isn't there, and claiming otherwise would be publishing a false signal.
+
+The real, usable, consistently large signal in this data is **game-script volume**:
+how much a team runs vs. passes shifts hard and predictably with spread size and total
+size — a 10+ point home favorite runs about 16% more rushing yards than baseline,
+a big home underdog's rushing production drops by a similar margin while the team
+they're trailing gains it. That's not a market-inefficiency claim, it's just how
+football is played, and it's exactly what a rushing/passing yardage prop needs.
+**Lead with volume edges for prop leans; treat OU/ATS edges from this tool as
+context, not a standalone pick.**
+
+A filter that scans and finds nothing is a real result, not a bug. As of Sept 2026,
+`home_revenge`/`away_revenge` (n=3143-3493) and `home_off_loss`/`home_off_win`
+(n=3308-3663) all sit within ~1 rate-point of their baseline — genuinely large
+samples, no edge. That means two commonly-repeated betting narratives, "revenge
+game" and "letdown/get-right spot," don't actually hold up across 25+ years of data.
+Reporting that is more useful to a subscriber than staying silent on it.
+
 ## Situational angles — adding a new one
 
 `pipeline/situations/new_stadium_debut.json` is the template. Each file is a curated,
@@ -123,9 +160,14 @@ franchise relocation). To add one:
    `situational_splits.py` — don't bend an unrelated cohort into the existing shape
    just to avoid touching the script.
 
-Ideas worth curating over time: short-week road games, revenge games (lost to this
-opponent last meeting), letdown spots (off a primetime win, home dog the next week),
-extreme-weather games, long-layoff-after-bye games.
+Most "narrative" cohorts (short week, revenge games, coming off a win/loss, extreme
+weather) turned out to be fully derivable from games.csv and now live as filters in
+`historical_screen.py` instead — reserve `situations/*.json` for things that genuinely
+need outside knowledge to identify (new stadium, coaching change, key injury return,
+a franchise relocation). Before hand-curating a new cohort, check whether it can
+instead be expressed as a predicate on existing columns (or a two-line enrichment
+pass like `_home_revenge`) and added to `historical_screen.py` — it scales to way
+more instances and doesn't risk an incomplete/mis-curated list.
 
 ## Things this deliberately does NOT do
 

@@ -16,9 +16,12 @@ gets generated and sent.
   (see the runbook).
 - [nflverse-data](https://github.com/nflverse/nflverse-data) — free, no key, historical
   play-by-play/schedule data back to 1999. Backs every prop pick with real form,
-  primetime, and opponent-defense splits (`pipeline/prop_stats.py`), and powers
-  one-off situational research like "how do new-stadium debuts trend historically"
-  (`pipeline/situational_splits.py`).
+  primetime, and opponent-defense splits (`pipeline/prop_stats.py`); a curated-cohort
+  tool for research questions that need outside knowledge, like "how do new-stadium
+  debuts trend" (`pipeline/situational_splits.py`); and a 39-filter automatic screen
+  (rest days, weather, spread size, momentum, divisional, and compounds of those) that
+  surfaces only the cohorts with a real edge over their own baseline
+  (`pipeline/historical_screen.py --scan`).
 - A weekly cloud-scheduled Claude agent runs the actual report pipeline and pushes
   the result to this repo, which auto-redeploys on Vercel.
 
@@ -58,21 +61,30 @@ reports/
 pipeline/
   RUNBOOK.md             what the weekly scheduled agent does, step by step
   prop_stats.py           per-player prop stats: L5/primetime hit rate, opp defense rank
-  situational_splits.py   historical cohort trends (e.g. new-stadium debuts)
+  historical_screen.py    39-filter automatic scan for real structural edges
+  situational_splits.py   hand-curated cohort trends (e.g. new-stadium debuts)
   situations/*.json       curated instance lists that situational_splits.py joins against
 ```
 
 ## Pipeline tools
 
-Both scripts are pure Python stdlib (no `pip install`) and pull straight from
+All three scripts are pure Python stdlib (no `pip install`) and pull straight from
 nflverse-data's free CSV releases, caching them in `pipeline/.cache/` for the day:
 
 ```bash
 python3 pipeline/prop_stats.py --player "Puka Nacua" --opponent SF \
   --stat receiving_yards --line 79.5
 
+python3 pipeline/historical_screen.py --scan
+python3 pipeline/historical_screen.py --filter home_big_favorite
+
 python3 pipeline/situational_splits.py --situation new_stadium_debut --scope season
 ```
+
+`historical_screen.py --scan` only prints filters that clear a real edge over their
+own baseline (default: 60+ games, 7+ rate-points on Over/Under or ATS, or 12%+ on
+rush/pass volume) — see [pipeline/RUNBOOK.md](pipeline/RUNBOOK.md#reading-historical_screenpy-output)
+for why the real edge lives in game-script volume, not the closing line itself.
 
 ## Send day
 
