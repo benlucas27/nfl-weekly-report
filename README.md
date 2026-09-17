@@ -29,23 +29,26 @@ gets generated and sent.
 
 ## Setup
 
-1. **Resend**
-   - Create an Audience in your Resend dashboard, copy its ID.
-   - Grab your API key from Resend settings.
+Status as of Sept 2026: Resend account, Audience, API key, sending domain
+(`notify.thissunday.xyz`), and Odds API key are all live and verified working.
+What's left:
 
-2. **The Odds API**
-   - Sign up free at the-odds-api.com, grab the API key.
+1. **Vercel** — import this repo at [vercel.com/new](https://vercel.com/new)
+   (framework preset: "Other"), add environment variables `RESEND_API_KEY`,
+   `RESEND_AUDIENCE_ID`, `ODDS_API_KEY`, deploy. Landing page at `/`, archive at
+   `/archive.html`.
+2. **The weekly scheduled agent** — not yet created. Needs to run
+   `pipeline/RUNBOOK.md`'s steps on a Thursday-AEST cron, with `RESEND_FROM_EMAIL`
+   also available to it (only `send_report.py` needs this one; it's not a Vercel
+   env var since Vercel never sends the email itself).
+3. **More tracked sources** — still just two (Hold the Line, Dr. Locks MD). The
+   "2+ sources agree" consensus rule needs more than two total sources to mean much.
 
-3. **Vercel**
-   - Import this repo as a new Vercel project (framework preset: "Other").
-   - Add environment variables: `RESEND_API_KEY`, `RESEND_AUDIENCE_ID`, `ODDS_API_KEY`.
-   - Deploy — landing page at `/`, archive at `/archive.html`.
-
-4. **Local dev**
-   ```bash
-   npm i -g vercel   # if you don't have it
-   vercel dev
-   ```
+Local dev for the site itself:
+```bash
+npm i -g vercel   # if you don't have it
+vercel dev
+```
 
 ## Structure
 
@@ -66,6 +69,8 @@ pipeline/
   historical_screen.py    42-filter automatic scan for real structural edges
   travel_and_clock.py     cross-country travel, Denver altitude, West Coast body clock
   team_locations.json     hand-compiled lat/lon + timezone per team (travel_and_clock.py input)
+  this_week.py            cross-references the REAL current slate against known signals
+  send_report.py          sends the week's report via Resend (draft-only unless --send)
   situational_splits.py   hand-curated cohort trends (e.g. new-stadium debuts)
   situations/*.json       curated instance lists that situational_splits.py joins against
 ```
@@ -85,7 +90,12 @@ python3 pipeline/historical_screen.py --filter home_big_favorite
 python3 pipeline/travel_and_clock.py --scan
 python3 pipeline/travel_and_clock.py --bodyclock
 
+python3 pipeline/this_week.py                    # what's actually live this week
+
 python3 pipeline/situational_splits.py --situation new_stadium_debut --scope season
+
+python3 pipeline/send_report.py --html public/reports/<slug>.html \
+  --subject "..." [--send]                       # draft-only without --send
 ```
 
 `--scan` on either screen only prints filters that clear a real edge over their own

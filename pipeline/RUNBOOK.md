@@ -85,15 +85,14 @@ Thursday Night Football kicks off).
    key matchups. Historical team trends (ATS/O-U in primetime, by roof/surface) are
    derivable from `games.csv` the same way the player stats are.
 
-7. **Check for a situational angle.** Two tools, two jobs:
-   - `python3 historical_screen.py --scan` — run every week regardless of slate.
-     Cross-reference the signals it returns (real edges only, see below) against
-     which teams are actually in that situation this week (e.g. it says
-     "home_big_favorite" is a real rushing-volume signal — is any home team a 10+
-     favorite this week? If so, that's a data-backed RB volume lean for the report).
-   - `situational_splits.py` — only when this week's slate has something matching an
-     existing hand-curated cohort in `pipeline/situations/` (new-stadium debut,
-     coaching change, etc.), or something worth curating as a new one.
+7. **Check for a situational angle.** `python3 this_week.py` does the cross-referencing
+   automatically now — it auto-detects the current week and reports which
+   already-validated filters (from historical_screen.py and travel_and_clock.py) are
+   actually triggered by real games this week. Use its output directly rather than
+   eyeballing the slate against the filter list by hand. Only reach for
+   `situational_splits.py` separately when something this week matches (or is worth
+   adding as) a hand-curated cohort in `pipeline/situations/` — new stadium, coaching
+   change, etc. — since those aren't schedule-derivable and this_week.py can't see them.
    Include a finding only with its real sample size and caveats attached. A
    coin-flip/null result is still worth publishing when it debunks a popular
    narrative (see "letdown spot" and "revenge game" in the historical_screen output
@@ -114,9 +113,18 @@ Thursday Night Football kicks off).
 11. **Commit and push** to the repo's default branch — this triggers a Vercel
     redeploy, so the new report and archive entry go live automatically.
 
-12. **Send the email.** Use the Resend API to send a campaign to the audience
-    (`RESEND_AUDIENCE_ID`) built from the same report content — a condensed version
-    with headline leans up top and a link to the full report on the site.
+12. **Send the email.**
+    ```
+    python3 pipeline/send_report.py --html public/reports/<slug>.html \
+      --subject "<week's headline lean in one line>" --send
+    ```
+    Needs `RESEND_API_KEY`, `RESEND_AUDIENCE_ID`, `RESEND_FROM_EMAIL` (a verified
+    Resend sending domain — `notify.thissunday.xyz` is already verified on this
+    account) as env vars. Without `--send` it only creates a draft in the Resend
+    dashboard and sends nothing — useful for a final look before the real send.
+    Its requests need an explicit `User-Agent` header or Cloudflare 403s them
+    (seen from Python's default urllib UA) — already handled in the script, but
+    worth knowing if a similar direct-API call gets added elsewhere.
 
 13. **Grade last week.** Before generating this week's report, check final scores
     for last week's headline leans and record win/loss in the track-record section

@@ -30,6 +30,9 @@ export default async function handler(req, res) {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
+          // Cloudflare in front of Resend's API 403s requests with no/generic
+          // User-Agent (seen from Python's urllib; belt-and-suspenders here too).
+          "User-Agent": "nfl-weekly-report/1.0",
         },
         body: JSON.stringify({ email, unsubscribed: false }),
       }
