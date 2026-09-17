@@ -36,7 +36,7 @@ What's left:
 1. **Vercel** — import this repo at [vercel.com/new](https://vercel.com/new)
    (framework preset: "Other"), add environment variables `RESEND_API_KEY`,
    `RESEND_AUDIENCE_ID`, `ODDS_API_KEY`, deploy. Landing page at `/`, archive at
-   `/archive.html`.
+   `/archive.html`. In progress as of this commit.
 2. **The weekly scheduled agent** — not yet created. Needs to run
    `pipeline/RUNBOOK.md`'s steps on a Thursday-AEST cron, with `RESEND_FROM_EMAIL`
    also available to it (only `send_report.py` needs this one; it's not a Vercel
