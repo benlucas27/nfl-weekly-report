@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Report Archive — NFL Weekly Consensus Report</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <span class="tag">Archive</span>
+    <h1>Past Reports</h1>
+    <div id="list">Loading…</div>
+    <div class="footer-nav">
+      <a href="/">← Back to signup</a>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/reports')
+      .then((r) => r.json())
+      .then(({ reports }) => {
+        const list = document.getElementById('list');
+        if (!reports || reports.length === 0) {
+          list.textContent = 'No reports published yet — check back Thursday.';
+          return;
+        }
+        list.innerHTML = reports
+          .map(
+            (r) => `
+            <a class="archive-item" href="/reports/${r.slug}.html">
+              <div class="date">${r.date} · ${r.week}</div>
+              <div class="title">${r.title}</div>
+            </a>`
+          )
+          .join('');
+      })
+      .catch(() => {
+        document.getElementById('list').textContent = 'Could not load reports.';
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "nfl-weekly-report",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Weekly NFL betting markets consensus report — signup site + archive.",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
