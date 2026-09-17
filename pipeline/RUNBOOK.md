@@ -42,11 +42,18 @@ Thursday Night Football kicks off).
   derived from the schedule columns alone: "team debuting a new stadium," "coaching
   change," etc. See "Situational angles" below.
 - **Historical screen** (`pipeline/historical_screen.py`) — a much broader, fully
-  automatic scan of 37+ structural cohorts (rest days, weather, spread size,
-  divisional, weekday/slot, momentum, and compounds of those) across 1999-2026, run
-  with `--scan` to surface only the ones that clear a real edge threshold. This is
-  the primary tool for "strong signal" angles — see "Reading historical_screen.py
-  output" below before using its numbers in a report.
+  automatic scan of 42 structural cohorts (rest days, weather, spread size,
+  divisional, weekday/slot, momentum, lookahead/trap spots, and compounds of those)
+  across 1999-2026, run with `--scan` to surface only the ones that clear a real edge
+  threshold. This is the primary tool for "strong signal" angles.
+- **Travel & body-clock** (`pipeline/travel_and_clock.py` + `pipeline/team_locations.json`)
+  — the geography-dependent angles historical_screen.py can't do on schedule columns
+  alone: cross-country travel distance, Denver's altitude, and the "West Coast teams
+  have a circadian edge in primetime" claim (real, and separately, the popular "fade
+  them in early games" claim, which is not — see `--bodyclock`).
+- See "Reading the screen/travel output" below before using either tool's numbers in
+  a report — both are about finding real edges, not confirming a narrative someone
+  already believes.
 
 ## Steps
 
@@ -115,13 +122,14 @@ Thursday Night Football kicks off).
     for last week's headline leans and record win/loss in the track-record section
     (mirrors the history-tracking pattern from the NRL report pipeline).
 
-## Reading historical_screen.py output
+## Reading the screen/travel output
 
 The closing spread and total are a genuinely efficient market — no structural filter
-here moves the Over/Under or ATS rate against the closing line by more than ~7 points
-even at the extremes (`--scan` defaults: min sample 60, min edge 0.07 rate-points /
-0.12 relative). Don't manufacture a bigger "beat the closing line" edge than that; it
-isn't there, and claiming otherwise would be publishing a false signal.
+in either tool moves the Over/Under or ATS rate against the closing line by more than
+~7-12 points even at the extremes (`historical_screen.py --scan` defaults: min sample
+60, min edge 0.07 rate-points / 0.12 relative). Don't manufacture a bigger "beat the
+closing line" edge than that; it isn't there, and claiming otherwise would be
+publishing a false signal.
 
 The real, usable, consistently large signal in this data is **game-script volume**:
 how much a team runs vs. passes shifts hard and predictably with spread size and total
@@ -129,15 +137,33 @@ size — a 10+ point home favorite runs about 16% more rushing yards than baseli
 a big home underdog's rushing production drops by a similar margin while the team
 they're trailing gains it. That's not a market-inefficiency claim, it's just how
 football is played, and it's exactly what a rushing/passing yardage prop needs.
-**Lead with volume edges for prop leans; treat OU/ATS edges from this tool as
+**Lead with volume edges for prop leans; treat OU/ATS edges from either tool as
 context, not a standalone pick.**
 
-A filter that scans and finds nothing is a real result, not a bug. As of Sept 2026,
-`home_revenge`/`away_revenge` (n=3143-3493) and `home_off_loss`/`home_off_win`
-(n=3308-3663) all sit within ~1 rate-point of their baseline — genuinely large
-samples, no edge. That means two commonly-repeated betting narratives, "revenge
-game" and "letdown/get-right spot," don't actually hold up across 25+ years of data.
-Reporting that is more useful to a subscriber than staying silent on it.
+A few filters are genuinely strong enough to lead a section with on their own —
+`away_lookahead_trap` (a team that was a big favorite last week and is a much bigger
+underdog this week: the opponent they're trapped looking past covers ~12 points more
+than baseline, n=102) and the primetime half of `--bodyclock` (the West Coast
+circadian-edge claim: +4 win-rate points, +1.9 cover-rate points over a flat 50%,
+n=534 — real, though more modest than the "70% ATS" version of this stat that
+circulates). The early-kickoff half of `--bodyclock` is the useful negative: the
+popular "fade West Coast teams in early ET games" claim shows an exact **0.0** cover-rate
+edge in this data (n=74) — a real, sourced counter to something a lot of NFL content
+repeats as fact.
+
+Don't lean on any one filter as the headline every week just because it produced a
+notable number once — including ones a subscriber or the report's own author
+suggested testing. Treat every filter the same way: report what the data shows,
+weighted by its own sample size, and rotate through whichever ones are actually live
+for that week's slate rather than always reaching for a favorite.
+
+A filter that scans and finds nothing is a real result, not a bug (`home_revenge` /
+`away_revenge` / `home_off_loss` / `home_off_win` are examples of this — large
+samples, no edge). Don't treat a null result as evidence the filter idea was bad;
+it's just what the data says this time. Mention nulls in passing where relevant
+rather than building a section around any single one of them — a report that spent
+its "unique angle" space debunking one specific narrative every week would get
+repetitive fast, and there are 40+ other filters that do find something.
 
 ## Situational angles — adding a new one
 

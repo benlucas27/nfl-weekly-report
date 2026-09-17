@@ -85,7 +85,7 @@
         <span class="label lean">Data angle</span>
       </div>
       <p class="why">
-        Run via <code>historical_screen.py --scan</code>, which screens 39 structural
+        Run via <code>historical_screen.py --scan</code>, which screens 42 structural
         cohorts across 1999–2026 and keeps only the ones with a real edge over their
         own baseline (not a flat 50%). The closing line itself barely moves for any of
         these — Vegas already prices rest, weather, and spread size — but game-script
@@ -101,11 +101,35 @@
         <b>+21%</b> (home) / <b>+23%</b> (away) — lean the passing props up, fade
         pure rushing volume, when this week's total is set unusually high
       </div>
-      <p class="why" style="margin-top:10px;">
-        Worth knowing what <i>isn't</i> here too: "revenge game" (lost to this exact
-        opponent last meeting, n=3143–3493) and "letdown spot" (off a win, favored
-        again, n=3308–3663) both come back within ~1 point of their baseline on huge
-        samples — two popular betting narratives that don't actually hold up.
+    </div>
+
+    <div class="pick">
+      <div class="head">
+        <span class="market">Trap games &amp; the West Coast body clock</span>
+        <span class="label lean">Data angle</span>
+      </div>
+      <p class="why">
+        Two more structural angles, from <code>historical_screen.py</code> and
+        <code>travel_and_clock.py --bodyclock</code>:
+      </p>
+      <div class="stat-line">
+        Lookahead trap (big favorite this week, much bigger underdog next week,
+        n=102): the opponent they're overlooking covers <b>+11.8pts</b> more than
+        baseline — the "focused on next week" narrative holds up
+      </div>
+      <div class="stat-line">
+        West Coast team in an 8pm ET+ kickoff (n=534): <b>54.1%</b> win rate,
+        <b>51.9%</b> cover rate — a real circadian edge, smaller than the
+        "70% ATS" version of this stat that circulates
+      </div>
+      <div class="stat-line">
+        Same teams in <i>early</i> ET kickoffs (n=74): <b>0.0pt</b> cover-rate edge —
+        the popular "fade them before noon their time" claim doesn't show up here
+      </div>
+      <p class="why" style="margin-top:10px; color: var(--muted); font-size: 0.88rem;">
+        (Also checked and came back flat, for the record: revenge games and
+        letdown/get-right spots — both within ~1 point of baseline on 3,000+ game
+        samples.)
       </p>
     </div>
 

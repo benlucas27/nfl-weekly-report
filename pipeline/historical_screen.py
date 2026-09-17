@@ -91,9 +91,15 @@ def month_of(row):
 
 
 def enrich_games(games):
-    """Adds _home_prev_result / _away_prev_result ('W'/'L'/'T') in place — each
-    team's result in its immediately preceding game, chronologically (crosses season
-    boundaries, so Week 1 games are covered using the prior season's finale)."""
+    """Adds several team-perspective flags in place, computed chronologically
+    (crossing season boundaries so Week 1 is covered using the prior season's finale):
+      _home_prev_result / _away_prev_result  'W'/'L'/'T' in the immediately preceding game
+      _away_back_to_back_road                this team's previous game was also on the road
+      _home_lookahead_trap / _away_lookahead_trap
+        this team was a meaningful favorite (own-perspective spread >= 7) this week,
+        AND is a meaningfully bigger underdog next week (own-perspective spread drops
+        by >=10) — the classic "focused on next week's tougher opponent" trap-game setup.
+    """
     per_team = defaultdict(list)
     for r in games:
         hs, aws = to_float(r.get("home_score")), to_float(r.get("away_score"))
@@ -103,14 +109,32 @@ def enrich_games(games):
     for team, appearances in per_team.items():
         appearances.sort(key=lambda a: (int(a[0]), int(a[1])))
         prev_result = None
+        prev_side = None
         for season, week, row, side, hs, aws in appearances:
             key = "_home_prev_result" if side == "home" else "_away_prev_result"
             row[key] = prev_result
+            if side == "away":
+                row["_away_back_to_back_road"] = (prev_side == "away")
+            prev_side = side
             if hs is None or aws is None:
                 prev_result = None  # game not yet played/scored
                 continue
             team_score, opp_score = (hs, aws) if side == "home" else (aws, hs)
             prev_result = "W" if team_score > opp_score else ("L" if team_score < opp_score else "T")
+
+        # Lookahead trap: compare this game's own-perspective spread to the very next
+        # game's, within the same appearances list (already chronological).
+        for i in range(len(appearances) - 1):
+            season, week, row, side, hs, aws = appearances[i]
+            _, _, next_row, next_side, _, _ = appearances[i + 1]
+            this_spread = _spread(row)
+            next_spread = _spread(next_row)
+            if this_spread is None or next_spread is None:
+                continue
+            own_this = this_spread if side == "home" else -this_spread
+            own_next = next_spread if next_side == "home" else -next_spread
+            is_trap = own_this >= 7 and (own_this - own_next) >= 10
+            row["_home_lookahead_trap" if side == "home" else "_away_lookahead_trap"] = is_trap
 
     # Revenge-game flag: did this exact matchup's most recent previous meeting (in
     # either venue) go against the team that's home in THIS game?
@@ -218,13 +242,20 @@ FILTERS = {
         lambda r: r.get("roof") == "outdoors" and (_temp(r) is not None) and _temp(r) <= 40 and (_spread(r) or 0) < 0),
     "wind_and_favorite": ("Wind >=15mph and the home team is favored (run-heavy script expected twice over)",
         lambda r: (_wind(r) or 0) >= 15 and (_spread(r) or -99) > 0),
+    "back_to_back_road": ("Away team's previous game was also on the road",
+        lambda r: r.get("_away_back_to_back_road") is True),
+    "home_lookahead_trap": ("Home team: big favorite this week, much bigger underdog next week",
+        lambda r: r.get("_home_lookahead_trap") is True),
+    "away_lookahead_trap": ("Away team: big favorite this week, much bigger underdog next week",
+        lambda r: r.get("_away_lookahead_trap") is True),
 }
 
 
 def outcomes(rows):
-    """Over/under + home-ATS record for a set of game rows."""
+    """Over/under, ATS, and straight-up record for a set of game rows."""
     over = under = push_ou = 0
     home_cover = away_cover = push_ats = 0
+    home_win = away_win = tie = 0
     for r in rows:
         line, total = to_float(r.get("total_line")), to_float(r.get("total"))
         if line is not None and total is not None:
@@ -236,12 +267,19 @@ def outcomes(rows):
             if result > spread: home_cover += 1
             elif result < spread: away_cover += 1
             else: push_ats += 1
+        if result is not None:
+            if result > 0: home_win += 1
+            elif result < 0: away_win += 1
+            else: tie += 1
     return {
         "n": len(rows),
         "over": over, "under": under, "push_ou": push_ou,
         "over_rate": round(over / (over + under), 3) if (over + under) else None,
         "home_cover": home_cover, "away_cover": away_cover, "push_ats": push_ats,
         "home_cover_rate": round(home_cover / (home_cover + away_cover), 3) if (home_cover + away_cover) else None,
+        "away_cover_rate": round(away_cover / (home_cover + away_cover), 3) if (home_cover + away_cover) else None,
+        "home_win_rate": round(home_win / (home_win + away_win), 3) if (home_win + away_win) else None,
+        "away_win_rate": round(away_win / (home_win + away_win), 3) if (home_win + away_win) else None,
     }
 
 
