@@ -136,7 +136,11 @@ Thursday Night Football kicks off).
 
 9. **Write the report.** Follow the exact section structure and HTML/CSS in
    `public/reports/2026-week-01-sample.html` — that file is the template. Save the
-   new file as `public/reports/<slug>.html` (slug format: `YYYY-week-NN`). Cover
+   new file as `public/reports/<slug>.html` (slug format: `YYYY-week-NN`). Keep
+   both `<div data-subscribe-widget></div>` mounts (near the top, and again near
+   the bottom before `footer-nav`) and the `<script src="/subscribe-widget.js">`
+   tag before `</body>` — every report page needs its own subscribe CTA, not just
+   the homepage. Cover
    every game on the slate in the matchup writeup (spread, total, and any notable
    prop), in readable sports-column prose — but the "Best Bets" leg list only ever
    contains **High Confidence** and **Confident** legs (see tiers below). A game

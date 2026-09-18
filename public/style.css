@@ -164,6 +164,18 @@ form.signup {
   flex-wrap: wrap;
 }
 
+.subscribe-cta {
+  border: 1.5px solid var(--text);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 28px 0;
+}
+.subscribe-cta .subscribe-cta-text {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.subscribe-cta form.signup { margin: 12px 0 4px; }
+
 input[type="email"] {
   flex: 1;
   min-width: 200px;
