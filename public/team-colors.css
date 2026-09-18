@@ -1,0 +1,18 @@
+/* One primary accent colour per team, used for H2H (spread/moneyline) picks.
+   Applied via class="team-BUF" etc. on a .leg-name or .team-chip element. */
+.team-ARI { --team: #97233F; } .team-ATL { --team: #A71930; }
+.team-BAL { --team: #241773; } .team-BUF { --team: #00338D; }
+.team-CAR { --team: #0085CA; } .team-CHI { --team: #0B162A; }
+.team-CIN { --team: #FB4F14; } .team-CLE { --team: #FF3C00; }
+.team-DAL { --team: #041E42; } .team-DEN { --team: #FB4F14; }
+.team-DET { --team: #0076B6; } .team-GB  { --team: #203731; }
+.team-HOU { --team: #A71930; } .team-IND { --team: #002C5F; }
+.team-JAX { --team: #006778; } .team-KC  { --team: #E31837; }
+.team-LV  { --team: #000000; } .team-LAC { --team: #0080C6; }
+.team-LA  { --team: #003594; } .team-MIA { --team: #008E97; }
+.team-MIN { --team: #4F2683; } .team-NE  { --team: #002244; }
+.team-NO  { --team: #D3BC8D; } .team-NYG { --team: #0B2265; }
+.team-NYJ { --team: #125740; } .team-PHI { --team: #004C54; }
+.team-PIT { --team: #FFB612; } .team-SF  { --team: #AA0000; }
+.team-SEA { --team: #69BE28; } .team-TB  { --team: #D50A0A; }
+.team-TEN { --team: #4B92DB; } .team-WAS { --team: #5A1414; }

@@ -11,30 +11,34 @@
     <span class="tag">Free · Weekly · Thursday AEST</span>
     <h1>NFL Weekly Consensus Report</h1>
     <p class="lede">
-      Every Thursday morning, before Thursday Night Football, we cross-reference the
-      sharpest publicly available NFL betting content and back every player prop with
-      real historical splits — form, primetime performance, opponent defense — so a
-      lean isn't just someone's opinion.
+      Get the weekly report in your inbox before games kick off. We cross-reference
+      the sharpest publicly available NFL betting content against real historical
+      data, and only tell you about the legs worth actually betting.
     </p>
 
     <form class="signup" id="signup-form">
       <input type="email" id="email" placeholder="you@email.com" required />
-      <button type="submit" id="signup-btn">Subscribe</button>
+      <button type="submit" id="signup-btn">Get it before kickoff</button>
     </form>
     <div class="msg" id="signup-msg"></div>
 
+    <div class="latest-report" id="latest-report" style="display:none;">
+      <div class="kicker">Latest report</div>
+      <div class="title" id="latest-report-title">Loading…</div>
+      <div class="cta"><a id="latest-report-link" href="/archive.html">Read it →</a></div>
+    </div>
+
     <h2>What's in it</h2>
     <ul class="plain">
-      <li>Headline leans — plays where 2+ tracked sources independently agree</li>
-      <li>Player yardage &amp; prop leans, backed by L5 form, primetime hit rate, and opponent defense-vs-position</li>
+      <li>A short, confident list of the week's best bets — spreads, totals, and player props, nothing padded in</li>
+      <li>Every game on the slate covered with real lines, even the ones with no pick attached</li>
       <li>Fade-the-public spots, where the line and the crowd disagree</li>
-      <li>Key matchup breakdowns</li>
       <li>Games to avoid, and why</li>
       <li>Last week's track record</li>
     </ul>
 
     <div class="footer-nav">
-      <a href="/archive.html">Read past reports →</a>
+      <a href="/archive.html">Read all past reports →</a>
     </div>
   </div>
 
@@ -73,6 +77,17 @@
         btn.disabled = false;
       }
     });
+
+    fetch('/api/reports')
+      .then((r) => r.json())
+      .then(({ reports }) => {
+        if (!reports || reports.length === 0) return;
+        const latest = reports[0];
+        document.getElementById('latest-report-title').textContent = latest.title;
+        document.getElementById('latest-report-link').href = `/reports/${latest.slug}.html`;
+        document.getElementById('latest-report').style.display = 'block';
+      })
+      .catch(() => {});
   </script>
 </body>
 </html>

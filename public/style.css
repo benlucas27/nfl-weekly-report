@@ -1,19 +1,29 @@
 :root {
-  --bg: #faf9f6;
-  --text: #262420;
-  --muted: #8a8478;
-  --hairline: #e8e4dc;
+  --bg: #ffffff;
+  --text: #0a0a0a;
+  --muted: #666666;
+  --hairline: #e4e4e4;
   --serif: Georgia, "Iowan Old Style", "Source Serif Pro", serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 
-  /* soft, desaturated highlight colours — used as small tags/labels, never large fills */
-  --lean-fg: #4f6b52;
-  --lean-bg: #eef2ec;
-  --avoid-fg: #9a5b46;
-  --avoid-bg: #f5ece7;
-  --fade-fg: #55647a;
-  --fade-bg: #edf0f4;
-  --accent: #b08a4e;
+  --over: #1a7a3c;
+  --over-bg: #eaf5ee;
+  --under: #b8342a;
+  --under-bg: #fbeceb;
+  --accent: #000000;
+  --team: #000000; /* overridden per-team via team-colors.css */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0a0a;
+    --text: #f2f2f2;
+    --muted: #9a9a9a;
+    --hairline: #262626;
+    --over-bg: #12241a;
+    --under-bg: #2a1512;
+    --accent: #ffffff;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -28,7 +38,7 @@ body {
 }
 
 .wrap {
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto;
   padding: 56px 20px 100px;
 }
@@ -65,25 +75,7 @@ p.lede { color: var(--muted); font-size: 1rem; margin-top: 8px; }
 
 .hr { border: none; border-top: 1px solid var(--hairline); margin: 0; }
 
-.pick {
-  padding: 18px 0;
-  border-bottom: 1px solid var(--hairline);
-}
-.pick:first-of-type { padding-top: 14px; }
-
-.pick .head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.pick .market {
-  font-weight: 600;
-  font-size: 1.02rem;
-}
-
+/* --- signal labels: black/white base, red/green ONLY for over/under, team colour for H2H --- */
 .label {
   display: inline-block;
   font-size: 0.68rem;
@@ -92,12 +84,14 @@ p.lede { color: var(--muted); font-size: 1rem; margin-top: 8px; }
   padding: 3px 8px;
   border-radius: 3px;
   white-space: nowrap;
+  border: 1px solid currentColor;
 }
-.label.lean  { color: var(--lean-fg);  background: var(--lean-bg); }
-.label.avoid { color: var(--avoid-fg); background: var(--avoid-bg); }
-.label.fade  { color: var(--fade-fg);  background: var(--fade-bg); }
-.label.high  { color: #fff; background: var(--accent); }
-.label.confident { color: var(--lean-fg); background: var(--lean-bg); }
+.label.high      { color: var(--bg); background: var(--text); border-color: var(--text); }
+.label.confident { color: var(--text); background: var(--bg); }
+.label.avoid     { color: var(--muted); background: var(--bg); }
+.label.over      { color: var(--over);  background: var(--over-bg);  border-color: var(--over); }
+.label.under     { color: var(--under); background: var(--under-bg); border-color: var(--under); }
+.label.h2h       { color: var(--team);  background: var(--bg); border-color: var(--team); }
 
 .legs { margin: 18px 0 8px; padding: 0; list-style: none; }
 .legs li {
@@ -112,27 +106,55 @@ p.lede { color: var(--muted); font-size: 1rem; margin-top: 8px; }
   flex-wrap: wrap;
 }
 .legs li .leg-name { font-weight: 600; font-size: 1.02rem; }
+.legs li .leg-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .legs li .leg-why { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 
-.pick .why {
-  color: var(--text);
-  font-size: 0.94rem;
-  margin-top: 8px;
+/* --- per-game dropdown --- */
+details.game {
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
 }
-
-.stat-line {
-  margin-top: 10px;
-  font-size: 0.82rem;
+details.game summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+  font-weight: 600;
+}
+details.game summary::-webkit-details-marker { display: none; }
+details.game summary::after {
+  content: "+";
+  font-family: var(--serif);
+  font-size: 1.3rem;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  transition: transform 0.15s ease;
 }
-.stat-line b { color: var(--text); font-weight: 600; }
-.stat-line .sep { margin: 0 8px; color: var(--hairline); }
+details.game[open] summary::after { transform: rotate(45deg); }
+details.game summary .matchup { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+details.game summary .lines { color: var(--muted); font-weight: 400; font-size: 0.86rem; }
+details.game .game-body { padding: 4px 16px 16px; border-top: 1px solid var(--hairline); }
+details.game .game-body p { font-size: 0.94rem; margin: 10px 0; }
+details.game .prop {
+  padding: 10px 0;
+  border-top: 1px dashed var(--hairline);
+}
+details.game .prop:first-of-type { border-top: none; }
+details.game .prop .prop-name { font-weight: 600; font-size: 0.95rem; }
+details.game .prop .leg-why { color: var(--muted); font-size: 0.88rem; margin-top: 2px; }
 
-.sources {
-  margin-top: 8px;
-  font-size: 0.8rem;
-  color: var(--accent);
+.team-chip {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 3px;
+  border: 1.5px solid var(--team);
+  color: var(--team);
+  font-weight: 700;
+  font-size: 0.82em;
 }
 
 form.signup {
@@ -148,7 +170,7 @@ input[type="email"] {
   padding: 12px 14px;
   border-radius: 6px;
   border: 1px solid var(--hairline);
-  background: #fff;
+  background: var(--bg);
   color: var(--text);
   font-size: 1rem;
   font-family: var(--sans);
@@ -169,11 +191,11 @@ button {
 button:disabled { opacity: 0.5; cursor: default; }
 
 .msg { margin-top: 4px; font-size: 0.88rem; }
-.msg.ok { color: var(--lean-fg); }
-.msg.err { color: var(--avoid-fg); }
+.msg.ok { color: var(--over); }
+.msg.err { color: var(--under); }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+a:hover { opacity: 0.7; }
 
 ul.plain { padding-left: 0; list-style: none; margin: 16px 0; }
 ul.plain li {
@@ -189,6 +211,27 @@ ul.plain li::before {
   color: var(--muted);
 }
 
+/* --- latest-report feature card on the landing page --- */
+.latest-report {
+  display: block;
+  border: 1.5px solid var(--text);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 22px 0;
+}
+.latest-report .kicker {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.latest-report .title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  margin-top: 4px;
+}
+.latest-report .cta { margin-top: 8px; font-size: 0.9rem; font-weight: 600; }
+
 .archive-item {
   display: block;
   padding: 16px 0;
@@ -201,6 +244,6 @@ ul.plain li::before {
   color: var(--text);
   margin-top: 2px;
 }
-.archive-item:hover .title { color: var(--accent); }
+.archive-item:hover .title { text-decoration: underline; }
 
 .footer-nav { margin-top: 56px; color: var(--muted); font-size: 0.88rem; }
