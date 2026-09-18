@@ -1,4 +1,4 @@
-# NFL Weekly Consensus Report — pipeline runbook
+# NFL Weekly Market Report — pipeline runbook
 
 This is what the scheduled agent does each week. It runs as a cloud scheduled Claude
 agent (not a hardcoded scraper) so it can use WebSearch/WebFetch live each week instead
@@ -142,6 +142,17 @@ Thursday Night Football kicks off).
    contains **High Confidence** and **Confident** legs (see tiers below). A game
    with nothing that clears Confident still gets covered in the writeup; it just
    doesn't contribute a leg to the list.
+
+   **Every game also gets at least one alt-line player prop where the data
+   supports it** (most games will). Rather than a standard-line prop the reader
+   can find anywhere, suggest a *safer alternate number* — pull the player's
+   trailing game log via `prop_stats.py`, find a line low enough that they've
+   cleared it in ~4 of their last 5 games, and pitch that instead of their
+   usual number. State the hit count in plain language ("he's cleared this in
+   4 of his last 5 games") — that's a concrete, useful fact for the reader, not
+   pipeline internals, so it's fine to show unlike sample sizes/edge percentages
+   elsewhere. Skip a player if the current-season sample is too thin (1-2 games)
+   to say anything real — don't force a prop onto a game that doesn't have one.
 
    **Report voice — read this before writing a word of reader-facing copy:**
    - No raw numbers from the pipeline appear in the report: no sample sizes, no

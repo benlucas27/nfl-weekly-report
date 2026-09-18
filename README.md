@@ -1,4 +1,4 @@
-# NFL Weekly Consensus Report
+# NFL Weekly Market Report
 
 Signup landing page + archive for a weekly NFL betting markets report: cross-referenced
 leans from tracked betting content sources, plus fade-the-public spots and games to
