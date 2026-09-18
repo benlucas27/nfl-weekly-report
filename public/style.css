@@ -118,7 +118,8 @@ details.game {
 }
 details.game summary {
   cursor: pointer;
-  padding: 14px 16px;
+  padding: 14px 40px 14px 16px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -133,10 +134,22 @@ details.game summary::after {
   font-size: 1.3rem;
   color: var(--muted);
   transition: transform 0.15s ease;
+  position: absolute;
+  top: 12px;
+  right: 16px;
 }
 details.game[open] summary::after { transform: rotate(45deg); }
 details.game summary .matchup { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-details.game summary .lines { color: var(--muted); font-weight: 400; font-size: 0.86rem; }
+details.game summary .lines { color: var(--muted); font-weight: 400; font-size: 0.86rem; white-space: nowrap; }
+
+@media (max-width: 480px) {
+  details.game summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  details.game summary .lines { white-space: normal; }
+}
 details.game .game-body { padding: 4px 16px 16px; border-top: 1px solid var(--hairline); }
 details.game .game-body p { font-size: 0.94rem; margin: 10px 0; }
 details.game .prop {
