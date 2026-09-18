@@ -122,19 +122,50 @@ Thursday Night Football kicks off).
    `situational_splits.py` separately when something this week matches (or is worth
    adding as) a hand-curated cohort in `pipeline/situations/` — new stadium, coaching
    change, etc. — since those aren't schedule-derivable and this_week.py can't see them.
-   Include a finding only with its real sample size and caveats attached. A
-   coin-flip/null result is still worth publishing when it debunks a popular
-   narrative (see "letdown spot" and "revenge game" in the historical_screen output
-   — neither clears a real edge threshold across 25+ years of data, which is itself
-   worth telling subscribers). Don't discard a null result and go hunting for a
-   different cohort that "worked" instead.
+   Weigh a finding internally by its real sample size and caveats — but see
+   "Report voice" below before writing any of that into the report itself; readers
+   get the conclusion, not the methodology. A coin-flip/null result still shapes what
+   you leave OUT of the report (it's a reason NOT to pitch a popular narrative as a
+   lean, e.g. "letdown spot" or "revenge game" — neither clears a real edge across
+   25+ years of data). Don't discard a null result internally and go hunting for a
+   different cohort that "worked" instead — just don't publish a stats appendix
+   about it either; the reader only needs to not be sold a bet that doesn't hold up.
 
 8. **Flag games to avoid.** Games with no source consensus, high line volatility
    this week, or an unresolved injury situation. State why.
 
 9. **Write the report.** Follow the exact section structure and HTML/CSS in
    `public/reports/2026-week-01-sample.html` — that file is the template. Save the
-   new file as `public/reports/<slug>.html` (slug format: `YYYY-week-NN`).
+   new file as `public/reports/<slug>.html` (slug format: `YYYY-week-NN`). Cover
+   every game on the slate in the matchup writeup (spread, total, and any notable
+   prop), in readable sports-column prose — but the "Best Bets" leg list only ever
+   contains **High Confidence** and **Confident** legs (see tiers below). A game
+   with nothing that clears Confident still gets covered in the writeup; it just
+   doesn't contribute a leg to the list.
+
+   **Report voice — read this before writing a word of reader-facing copy:**
+   - No raw numbers from the pipeline appear in the report: no sample sizes, no
+     edge percentages, no L5/primetime hit-rate fractions, no tool or script names
+     (`historical_screen.py`, `--scan`, etc.), no "n=". Translate every one of
+     those into a plain-English reason instead — "the trend has been reliable,"
+     "this matchup favors the run," "the market's moved toward them" — the same
+     way a sports column would explain a pick, not a data appendix.
+   - This is a *filter*, not a rewrite of the underlying judgment: only apply this
+     rule to what you SHOW; the confidence tiering underneath still has to be
+     honestly earned from steps 1-8, not vibes.
+
+   **Confidence tiers for the Best Bets list:**
+   - **High Confidence** — 2+ tracked sources agree AND it's backed by a real
+     statistical signal from steps 3/7 (prop_stats.py, historical_screen.py,
+     travel_and_clock.py, or this_week.py) that actually cleared that tool's edge
+     threshold.
+   - **Confident** — clears ONE of those two bars, not both (either 2+ sources
+     agree with no strong stats behind it, or a real statistical signal with only
+     one or zero sources mentioning it).
+   - **Anything weaker does not go on the list.** A single source's opinion with no
+     stats backing, or a stat that didn't clear its own tool's edge threshold, is
+     not a leg — it can still be mentioned as color in the matchup writeup if
+     relevant, just never pitched as something to bet.
 
 10. **Update the archive index.** Prepend an entry to `reports/index.json` with
     `slug`, `date`, `week`, `title`, `summary`.
@@ -160,6 +191,10 @@ Thursday Night Football kicks off).
     (mirrors the history-tracking pattern from the NRL report pipeline).
 
 ## Reading the screen/travel output
+
+This section is about how to *decide* what's real — internal reasoning that feeds
+the confidence tiers above. None of the numbers, filter names, or sample sizes
+mentioned here belong in the report itself; see "Report voice" under step 9.
 
 The closing spread and total are a genuinely efficient market — no structural filter
 in either tool moves the Over/Under or ATS rate against the closing line by more than
