@@ -6,8 +6,13 @@ Pulls the historical stat lines that back a player prop pick, using nflverse-dat
 Pure stdlib — no pandas/pip install needed, so it runs anywhere the pipeline agent does.
 
 Data source: https://github.com/nflverse/nflverse-data
-  - games.csv        season schedule incl. weekday/gametime (for primetime splits)
-  - player_stats.csv weekly per-player stats back to 1999
+  - games.csv                     season schedule incl. weekday/gametime (for primetime splits)
+  - stats_player_week_<year>.csv  weekly per-player stats, one file per season
+
+NOTE: the older combined `player_stats.csv` release looks plausible (loads fine,
+right shape) but stopped being updated in May 2025 — it silently serves 2022-2024
+data as if current, with no error. Use `stats_player_week_<year>.csv` per season
+instead (confirmed live for the current season) and concatenate the years you need.
 
 Usage:
   python3 prop_stats.py --player "Puka Nacua" --opponent SF --stat receiving_yards --line 79.5
@@ -22,14 +27,16 @@ import csv
 import json
 import os
 import sys
+import urllib.error
 import time
 import urllib.request
 from collections import defaultdict
 
 GAMES_URL = "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
-PLAYER_STATS_URL = "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats.csv"
+STATS_WEEK_URL = "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{year}.csv"
 CACHE_DIR = os.path.join(os.path.dirname(__file__), ".cache")
 CACHE_MAX_AGE_SECONDS = 20 * 60 * 60  # ~20h, comfortably under a week
+STATS_YEARS_BACK = 4  # current season + 3 prior, enough for primetime/L5 history
 
 STAT_TO_POSITIONS = {
     "receiving_yards": {"WR", "TE", "RB"},
@@ -57,9 +64,22 @@ def load_games():
 
 
 def load_player_stats():
-    path = _cached_download(PLAYER_STATS_URL, "player_stats.csv")
-    with open(path, newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+    """Concatenates stats_player_week_<year>.csv for the last STATS_YEARS_BACK
+    seasons (auto-detected from today's date) rather than the stale combined file."""
+    from datetime import date
+    current_year = date.today().year
+    rows = []
+    for year in range(current_year - STATS_YEARS_BACK + 1, current_year + 1):
+        url = STATS_WEEK_URL.format(year=year)
+        try:
+            path = _cached_download(url, f"stats_player_week_{year}.csv")
+        except urllib.error.HTTPError:
+            continue  # future season file may not exist yet
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                row["recent_team"] = row.get("team", row.get("recent_team"))  # column renamed upstream
+                rows.append(row)
+    return rows
 
 
 def is_primetime(game):

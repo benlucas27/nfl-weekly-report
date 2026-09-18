@@ -34,12 +34,17 @@ import csv
 import json
 import math
 import os
+import urllib.error
 import urllib.request
 from collections import defaultdict
 from datetime import datetime
 
 GAMES_URL = "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
-PLAYER_STATS_URL = "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats.csv"
+# The combined player_stats.csv release stopped being updated in May 2025 -- it
+# loads fine and looks plausible but silently serves 2022-2024 data as "current."
+# stats_player_week_<year>.csv (one file per season) is the maintained replacement.
+STATS_WEEK_URL = "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{year}.csv"
+STATS_FIRST_YEAR = 1999
 CACHE_DIR = os.path.join(os.path.dirname(__file__), ".cache")
 STAT_COLUMNS = ["carries", "rushing_yards", "attempts", "passing_yards"]
 
@@ -63,16 +68,25 @@ def load_games():
 
 
 def load_team_game_stats():
-    """(season, week, team) -> {carries, rushing_yards, attempts, passing_yards} team totals."""
-    path = _cached_download(PLAYER_STATS_URL, "player_stats.csv")
+    """(season, week, team) -> {carries, rushing_yards, attempts, passing_yards} team totals.
+    Concatenates every season's stats_player_week_<year>.csv rather than the stale
+    combined file, so this now genuinely covers through the current season."""
+    from datetime import date
     index = defaultdict(lambda: defaultdict(float))
-    with open(path, newline="", encoding="utf-8") as f:
-        for r in csv.DictReader(f):
-            key = (r.get("season"), r.get("week"), r.get("recent_team"))
-            for col in STAT_COLUMNS:
-                v = to_float(r.get(col))
-                if v is not None:
-                    index[key][col] += v
+    for year in range(STATS_FIRST_YEAR, date.today().year + 1):
+        url = STATS_WEEK_URL.format(year=year)
+        try:
+            path = _cached_download(url, f"stats_player_week_{year}.csv")
+        except urllib.error.HTTPError:
+            continue  # future season file may not exist yet
+        with open(path, newline="", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                team = r.get("team", r.get("recent_team"))
+                key = (r.get("season"), r.get("week"), team)
+                for col in STAT_COLUMNS:
+                    v = to_float(r.get(col))
+                    if v is not None:
+                        index[key][col] += v
     return index
 
 
