@@ -96,6 +96,23 @@ p.lede { color: var(--muted); font-size: 1rem; margin-top: 8px; }
 .label.lean  { color: var(--lean-fg);  background: var(--lean-bg); }
 .label.avoid { color: var(--avoid-fg); background: var(--avoid-bg); }
 .label.fade  { color: var(--fade-fg);  background: var(--fade-bg); }
+.label.high  { color: #fff; background: var(--accent); }
+.label.confident { color: var(--lean-fg); background: var(--lean-bg); }
+
+.legs { margin: 18px 0 8px; padding: 0; list-style: none; }
+.legs li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.legs li .leg-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.legs li .leg-name { font-weight: 600; font-size: 1.02rem; }
+.legs li .leg-why { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 
 .pick .why {
   color: var(--text);
