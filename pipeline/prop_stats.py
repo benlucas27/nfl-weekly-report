@@ -37,6 +37,7 @@ STATS_WEEK_URL = "https://github.com/nflverse/nflverse-data/releases/download/st
 CACHE_DIR = os.path.join(os.path.dirname(__file__), ".cache")
 CACHE_MAX_AGE_SECONDS = 20 * 60 * 60  # ~20h, comfortably under a week
 STATS_YEARS_BACK = 4  # current season + 3 prior, enough for primetime/L5 history
+DEF_WINDOW_GAMES = 17  # trailing games per defense for defense-vs-position rank
 
 STAT_TO_POSITIONS = {
     "receiving_yards": {"WR", "TE", "RB"},
@@ -154,28 +155,29 @@ def analyze(player_name, opponent_team, stat, line, seasons_back=3):
             primetime_vals.append(to_float(r.get(stat)))
     primetime_hit = sum(1 for v in primetime_vals if v > line)
 
-    # Opponent defense-vs-position rank, current season.
-    # Standard "yards allowed per game to position" definition: sum the stat across
-    # all eligible-position players in a single game, then average that per-game
-    # total across games — NOT averaged per individual player appearance, which
-    # would dilute the signal with WR3/WR4 clutter.
+    # Opponent defense-vs-position rank over each defense's most recent
+    # DEF_WINDOW_GAMES games (spanning seasons). Current-season-only is meaningless
+    # early in the year (Week 2 = one game per team) and produced confident-sounding
+    # matchup claims resting on a single game.
+    # "Yards allowed per game to position" definition: sum the stat across all
+    # eligible-position players in one game, then average those per-game totals.
     current_season = int(rows[-1]["season"])
     eligible_positions = STAT_TO_POSITIONS.get(stat, {position_group})
     per_game_totals = defaultdict(lambda: defaultdict(float))  # team -> (season,week) -> total
     for r in stats:
-        if int(r.get("season", 0)) != current_season:
-            continue
         if r.get("position_group") not in eligible_positions:
             continue
         opp = r.get("opponent_team")
         if not opp:
             continue
-        per_game_totals[opp][(r["season"], r["week"])] += to_float(r.get(stat))
+        per_game_totals[opp][(int(r["season"]), int(r["week"]))] += to_float(r.get(stat))
 
-    averages = {
-        team: (sum(game_totals.values()) / len(game_totals) if game_totals else 0.0)
-        for team, game_totals in per_game_totals.items()
-    }
+    averages = {}
+    games_used = {}
+    for team, game_totals in per_game_totals.items():
+        recent = sorted(game_totals.items())[-DEF_WINDOW_GAMES:]
+        games_used[team] = len(recent)
+        averages[team] = sum(v for _, v in recent) / len(recent) if recent else 0.0
     ranked = sorted(averages.items(), key=lambda kv: kv[1], reverse=True)
     opp_rank = next((i + 1 for i, (team, _) in enumerate(ranked) if team == opponent_team), None)
     opp_avg_allowed = averages.get(opponent_team)
@@ -194,6 +196,7 @@ def analyze(player_name, opponent_team, stat, line, seasons_back=3):
         "opponent": opponent_team,
         "opponent_def_rank_vs_position": opp_rank,
         "opponent_def_avg_allowed": round(opp_avg_allowed, 1) if opp_avg_allowed is not None else None,
+        "opponent_def_games_in_window": games_used.get(opponent_team),
         "teams_ranked": len(ranked),
         "note": "opponent_def_rank_vs_position: 1 = allows the most to this position group (worst matchup for the defense, best for the prop)",
     }

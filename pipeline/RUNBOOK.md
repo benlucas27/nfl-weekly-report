@@ -15,8 +15,10 @@ Thursday Night Football kicks off).
   updated automatically. This is the historical stats backbone:
   - `games.csv` — full schedule incl. `weekday`/`gametime` (primetime splits) and
     historical `spread_line`/`total_line`/odds/`roof`/`surface`/`temp`/`wind`
-  - `player_stats.csv` — every player's weekly stats back to 1999 (yards, targets,
-    position, opponent) — powers form, primetime hit-rate, and defense-vs-position
+  - `stats_player_week_<year>.csv` (release tag `stats_player`, one file per season) —
+    every player's weekly stats (yards, targets, position, opponent) — powers form,
+    primetime hit-rate, and defense-vs-position. **Not** the old combined
+    `player_stats.csv`, which stopped updating in May 2025 and silently serves stale data.
   - Use `pipeline/prop_stats.py` (stdlib only, no pip install needed) rather than
     re-deriving this by hand each week:
     ```
@@ -64,6 +66,11 @@ Thursday Night Football kicks off).
   `pipeline/situations/*.json`) — for hand-curated, real-world cohorts that can't be
   derived from the schedule columns alone: "team debuting a new stadium," "coaching
   change," etc. See "Situational angles" below.
+- **Fresh data every run:** `historical_screen.py`'s downloads never expire, so on
+  a machine that has run before, delete `pipeline/.cache/games.csv` and the current
+  season's `stats_player_week_<year>.csv` first (a cloud routine starts from a clean
+  checkout, so this only bites local runs). Results, injuries and lines all change
+  between drafts.
 - **Historical screen** (`pipeline/historical_screen.py`) — a much broader, fully
   automatic scan of 42 structural cohorts (rest days, weather, spread size,
   divisional, weekday/slot, momentum, lookahead/trap spots, and compounds of those)
@@ -104,12 +111,28 @@ Thursday Night Football kicks off).
    that's a meaningfully different, stronger claim than two independent voices
    agreeing with each other alone.
 
-5. **Check public-money signal.** Where a line hasn't moved despite lopsided public
+5. **Check public-money signal.** (If no real public-split data is available — Action
+   Network's splits are PRO-only — replace the "Fade the Public" section with a
+   "Line Moves Since <last publish>" section built from the odds you actually pulled,
+   rather than a placeholder saying nothing was found.) Where a line hasn't moved despite lopsided public
    backing on one side, flag the other side as a "Fade the Public" candidate. Don't
    fabricate percentages you can't actually see — only report signal you pulled from
    a real source.
 
-6. **Pull context.** Injuries (especially Wed/Thu practice reports), weather forecast
+6. **Verify injuries at the source — before writing a single leg.** Fetch the raw
+   NFL.com article "NFL Week N injury report: Player statuses for all 16 games" with
+   `curl -sL -A "Mozilla/5.0 ..."`, strip the tags, and read each game's block
+   (OUT / DOUBTFUL / QUESTIONABLE per team; "No injury designations" means healthy).
+   Check every player who carries a prop or leg, and every starting QB. Drop any prop
+   for a player listed at all, and don't back receivers whose starting QB is out.
+   **Do not use WebFetch/WebSearch summaries for statuses** — on the Week 2 run a
+   WebFetch summary put Derrick Henry on the Titans and Kenneth Walker on the
+   Seahawks (stale assumptions, not the page), and Friday's published report still
+   contained a receiver who was ruled out. Re-run this on the morning of publish,
+   not just when the report is first drafted; also compare current lines against the
+   ones in the last published version and call out real moves.
+
+   **Pull context.** Injuries (especially Wed/Thu practice reports), weather forecast
    for outdoor games, and any relevant trend notes for the games in headline leans and
    key matchups. Historical team trends (ATS/O-U in primetime, by roof/surface) are
    derivable from `games.csv` the same way the player stats are.
@@ -147,16 +170,22 @@ Thursday Night Football kicks off).
    with nothing that clears Confident still gets covered in the writeup; it just
    doesn't contribute a leg to the list.
 
-   **Every game also gets at least one alt-line player prop where the data
-   supports it** (most games will). Rather than a standard-line prop the reader
-   can find anywhere, suggest a *safer alternate number* — pull the player's
-   trailing game log via `prop_stats.py`, find a line low enough that they've
-   cleared it in ~4 of their last 5 games, and pitch that instead of their
-   usual number. State the hit count in plain language ("he's cleared this in
-   4 of his last 5 games") — that's a concrete, useful fact for the reader, not
-   pipeline internals, so it's fine to show unlike sample sizes/edge percentages
-   elsewhere. Skip a player if the current-season sample is too thin (1-2 games)
-   to say anything real — don't force a prop onto a game that doesn't have one.
+   **Every game gets an alt-line player prop where the data supports it** (not every
+   game will). Pull the player's trailing game log via `prop_stats.py` and set the line
+   at roughly **75% of his median over the last five games** (fall back to 68%, then
+   60%), rounded down to a .5. Keep the prop only if he cleared that line in **at
+   least 4 of the last 5**; otherwise skip the player — volatile players (e.g. a
+   receiver going 82/71/13/0/79) produce junk lines like "over 10.5" and shouldn't be
+   forced in. Minimum line 9.5. If an external projection puts his usual line below the
+   computed alt (a hot streak inflating the median — e.g. Henry, median 128, projected
+   ~88), cap the alt under the projection so it is genuinely the *safer* number.
+   State the hit count in plain language ("cleared in each of his last five games") —
+   a concrete fact for the reader, unlike sample sizes/edge percentages. Skip a player
+   if the current-season-plus-last-season sample is thin. Alt lines are always set
+   below the usual line, so tell the reader to look for the closest rung on their
+   book's ladder. Over = green pill, Under = red pill (`label over` / `label under`);
+   team chips (`team-chip team-XXX`) mark a team-side market or identify a leg's team;
+   the favourite in each game's line uses `team-text team-XXX`.
 
    **Report voice — read this before writing a word of reader-facing copy:**
    - No raw numbers from the pipeline appear in the report: no sample sizes, no
@@ -170,17 +199,28 @@ Thursday Night Football kicks off).
      honestly earned from steps 1-8, not vibes.
 
    **Confidence tiers for the Best Bets list:**
-   - **High Confidence** — 2+ tracked sources agree AND it's backed by a real
-     statistical signal from steps 3/7 (prop_stats.py, historical_screen.py,
-     travel_and_clock.py, or this_week.py) that actually cleared that tool's edge
-     threshold.
-   - **Confident** — clears ONE of those two bars, not both (either 2+ sources
-     agree with no strong stats behind it, or a real statistical signal with only
-     one or zero sources mentioning it).
-   - **Anything weaker does not go on the list.** A single source's opinion with no
-     stats backing, or a stat that didn't clear its own tool's edge threshold, is
-     not a leg — it can still be mentioned as color in the matchup writeup if
-     relevant, just never pitched as something to bet.
+   - A **spread or total leg needs a statistical signal for that specific market** —
+     an ATS or Over/Under edge that cleared the tool's threshold. A *volume* signal
+     (e.g. "home favorites run ~14% more") only supports **props**, never a side or a
+     total: on the Week 2 refresh, "Eagles −7", "49ers −13.5", "Over 50.5" and a
+     Broncos lean all had no such backing and were removed from the list (the one
+     relevant ATS signal actually leaned the other way, just under the bar).
+   - **High Confidence** — a validated signal that cleared its threshold AND
+     independent corroboration: 2+ separate public analysts or published metrics
+     (e.g. Covers, DK Network, SportsLine, DVOA/PFF grades, usage data) pointing the
+     same way, **checked against the raw page text**, not a search summary.
+   - **Confident** — clears ONE of those two bars (a validated signal alone, or
+     corroboration alone) plus the 4-of-5 alt-line check for props.
+   - **Anything weaker does not go on the list.** A single opinion with no backing,
+     or a signal that didn't clear its own threshold, is not a leg — it can appear as
+     color in the matchup writeup, never as something to bet. It is fine — and
+     honest — for a week to have no spread/total legs at all.
+   - **Matchup claims** ("soft run defense") must be corroborated by an external
+     measure before they appear in copy. `prop_stats.py`'s defense-vs-position rank
+     is a yards-allowed *volume* stat (now a trailing 17-game window; it used to be
+     current-season-only, i.e. a single game in Week 2) and disagrees with efficiency
+     metrics (Tennessee ranked 21st on it but 28th in run-defense DVOA). Treat it as
+     a hint, not a claim.
 
 10. **Update the archive index.** Prepend an entry to `reports/index.json` with
     `slug`, `date`, `week`, `title`, `summary`.

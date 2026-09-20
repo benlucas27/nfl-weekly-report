@@ -20,7 +20,9 @@
     --text: #f2f2f2;
     --muted: #9a9a9a;
     --hairline: #262626;
+    --over: #4ade80;
     --over-bg: #12241a;
+    --under: #f87171;
     --under-bg: #2a1512;
     --accent: #ffffff;
   }
@@ -160,6 +162,8 @@ details.game .prop:first-of-type { border-top: none; }
 details.game .prop .prop-name { font-weight: 600; font-size: 0.95rem; }
 details.game .prop .leg-why { color: var(--muted); font-size: 0.88rem; margin-top: 2px; }
 
+.team-text { color: var(--team); font-weight: 600; }
+.kick { color: var(--muted); font-size: 0.8rem; margin-top: 10px; }
 .team-chip {
   display: inline-block;
   padding: 1px 8px;
@@ -168,6 +172,12 @@ details.game .prop .leg-why { color: var(--muted); font-size: 0.88rem; margin-to
   color: var(--team);
   font-weight: 700;
   font-size: 0.82em;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* several team colours are near-black; keep the text readable and let the colour show as an outline */
+  .team-chip { color: var(--text); }
+  .team-text { color: var(--text); box-shadow: inset 0 -2px 0 var(--team); }
 }
 
 form.signup {
