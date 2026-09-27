@@ -29,8 +29,9 @@ gets generated and sent.
 
 ## Setup
 
-Status as of Sept 2026: Resend account, Audience, API key, sending domain
-(`notify.thissunday.xyz`), and Odds API key are all live and verified working.
+Status as of Sept 2026: Resend account, Audience, and API key are live. Sending
+domain switched to `haveaplan.xyz` (from `ben@haveaplan.xyz`) — verification
+pending in the Resend dashboard. Odds API key is live and verified working.
 What's left:
 
 1. **Vercel** — import this repo at [vercel.com/new](https://vercel.com/new)

@@ -9,7 +9,7 @@ project owner makes when the recurring schedule is set up, not something to assu
 here.
 
 Requires env vars: RESEND_API_KEY, RESEND_AUDIENCE_ID, RESEND_FROM_EMAIL
-(e.g. "NFL Weekly <reports@notify.thissunday.xyz>" — must be on a verified
+(e.g. "NFL Weekly <ben@haveaplan.xyz>" — must be on a verified
 Resend sending domain).
 
 Usage:

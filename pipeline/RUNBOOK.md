@@ -234,8 +234,8 @@ Thursday Night Football kicks off).
       --subject "<week's headline lean in one line>" --send
     ```
     Needs `RESEND_API_KEY`, `RESEND_AUDIENCE_ID`, `RESEND_FROM_EMAIL` (a verified
-    Resend sending domain — `notify.thissunday.xyz` is already verified on this
-    account) as env vars. Without `--send` it only creates a draft in the Resend
+    Resend sending domain — `haveaplan.xyz`, sending as `ben@haveaplan.xyz`) as
+    env vars. Without `--send` it only creates a draft in the Resend
     dashboard and sends nothing — useful for a final look before the real send.
     Its requests need an explicit `User-Agent` header or Cloudflare 403s them
     (seen from Python's default urllib UA) — already handled in the script, but
