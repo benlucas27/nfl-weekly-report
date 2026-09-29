@@ -30,9 +30,9 @@ gets generated and sent.
 ## Setup
 
 Status as of Sept 2026: Resend account, Audience, and API key are live. Sending
-domain switched to `haveaplan.xyz` (from `ben@haveaplan.xyz`) — verification
-pending in the Resend dashboard. Odds API key is live and verified working.
-What's left:
+domain switched to `reports.haveaplan.xyz`, sending as
+`NFL Weekly Market Report <weekly@reports.haveaplan.xyz>` — DNS verified.
+Odds API key is live and verified working. What's left:
 
 1. **Vercel** — import this repo at [vercel.com/new](https://vercel.com/new)
    (framework preset: "Other"), add environment variables `RESEND_API_KEY`,

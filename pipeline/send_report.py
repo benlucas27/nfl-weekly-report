@@ -9,8 +9,8 @@ project owner makes when the recurring schedule is set up, not something to assu
 here.
 
 Requires env vars: RESEND_API_KEY, RESEND_AUDIENCE_ID, RESEND_FROM_EMAIL
-(e.g. "NFL Weekly <ben@haveaplan.xyz>" — must be on a verified
-Resend sending domain).
+(e.g. "NFL Weekly Market Report <weekly@reports.haveaplan.xyz>" — must be
+on a verified Resend sending domain).
 
 Usage:
   python3 send_report.py --html public/reports/2026-week-02.html --subject "Week 2: Chiefs -2.5, Chase over, and a trap game in Tennessee"
