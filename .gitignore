@@ -4,3 +4,6 @@ node_modules/
 .env.local
 .DS_Store
 pipeline/.cache/
+pipeline/__pycache__/
+__pycache__/
+*.pyc
