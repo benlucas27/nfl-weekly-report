@@ -26,7 +26,7 @@
     <p class="section-note">Spreads, totals, and moneylines, tracked separately below &mdash; a spread signal doesn't always mean the same team is a good moneyline play, so we grade them apart.</p>
     <div class="stat-row" id="game-stats"></div>
     <table class="results" id="game-table"><tbody></tbody></table>
-    <p class="section-note" id="game-empty" style="display:none;">No spread, total, or moneyline picks graded yet &mdash; most weeks haven't cleared our bar for either market so far.</p>
+    <p class="section-note" id="game-empty" style="display:none;">No spread, total, or moneyline picks graded yet. Weeks 2 and 4 genuinely had none &mdash; we went back and re-checked both slates against our current signal-detection tooling (including the moneyline check added this week) to make sure nothing real was missed at the time, and nothing cleared the bar either week. Week 5 has our first spread lean (Tennessee +7.5); it'll land here once that game's final.</p>
 
     <div class="footer-nav">
       <a href="/archive.html">&larr; All reports</a>
@@ -65,14 +65,16 @@
       tableEl.style.display = '';
       emptyEl.style.display = 'none';
       const tbody = tableEl.querySelector('tbody');
-      tbody.innerHTML = `<tr><th>Week</th><th>Pick</th><th>Result</th></tr>` + rows
+      tbody.innerHTML = `<tr><th>Week</th><th>Pick</th><th>Actual</th><th>Result</th></tr>` + rows
         .map((r) => {
           const cls = RESULT_CLASS[r.result] || 'avoid';
           const label = RESULT_LABEL[r.result] || r.result;
           const note = r.note ? `<div class="note">${r.note}</div>` : '';
+          const actual = r.actual ? r.actual : (r.result === 'void' ? '&mdash;' : '');
           return `<tr>
             <td class="week">${r.week}</td>
             <td>${r.pick}${note}</td>
+            <td class="note">${actual}</td>
             <td><span class="label ${cls}">${label}</span></td>
           </tr>`;
         })

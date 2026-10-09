@@ -122,10 +122,7 @@ details.game summary {
   cursor: pointer;
   padding: 14px 40px 14px 16px;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  display: block;
   list-style: none;
   font-weight: 600;
 }
@@ -141,11 +138,28 @@ details.game summary::after {
   right: 16px;
 }
 details.game[open] summary::after { transform: rotate(45deg); }
+details.game summary .summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 details.game summary .matchup { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 details.game summary .lines { color: var(--muted); font-weight: 400; font-size: 0.86rem; white-space: nowrap; }
+details.game summary .summary-calls {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+details.game summary .summary-calls b { color: var(--text); font-weight: 600; }
+details.game summary .summary-calls .call-sep { margin: 0 6px; opacity: 0.5; }
 
 @media (max-width: 480px) {
-  details.game summary {
+  details.game summary .summary-top {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
@@ -288,24 +302,29 @@ ul.plain li::before {
 .tabs {
   display: flex;
   gap: 4px;
-  margin: 20px 0 0;
-  border-bottom: 1px solid var(--hairline);
+  margin: 24px 0 0;
+  padding: 5px;
+  background: var(--hairline);
+  border-radius: 11px;
   overflow-x: auto;
 }
 .tab-btn {
+  flex: 1;
   font-family: var(--sans);
   font-size: 0.86rem;
-  font-weight: 600;
-  padding: 10px 14px;
+  font-weight: 700;
+  padding: 11px 14px;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
   white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
-.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
-.tab-panel { display: none; padding-top: 18px; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--bg); background: var(--text); }
+.tab-panel { display: none; padding-top: 20px; }
 .tab-panel.active { display: block; }
 
 /* --- Best Bets table --- */

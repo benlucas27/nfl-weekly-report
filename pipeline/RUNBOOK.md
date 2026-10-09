@@ -190,7 +190,23 @@ Thursday Night Football kicks off).
    new report for the click-to-switch behavior):
    - **Best Bets** — now a `<table>`, not a `<ul>`: columns Pick / Market / Tier / Why.
      One row per leg, same tier rules as before.
-   - **Full Slate** — the same per-game accordion as before, unchanged.
+   - **Full Slate** — the per-game accordion, with one addition (as of Week 5): the
+     `<summary>` (the always-visible collapsed row, before any click) now has a
+     second line, `.summary-calls`, below the existing matchup/lines row (wrap that
+     existing row in `.summary-top` — see the CSS). It states, for every game, one
+     line each on:
+     - **Side** — an explicit take on spread *or* moneyline, not just the raw lines
+       (which still show in `.summary-top`): either a specific pick, bolded (e.g.
+       `Side: **Tennessee +7.5** (spread)`), or plainly `Side: No lean` when nothing
+       cleared the bar. Don't skip this for games with no pick — a reader scanning
+       the tab should see every game got a real look, not silence.
+     - **Total** — same idea, `Total: **Over 54.5**` or `Total: No lean`.
+     - **Props** — a compact list of this game's prop picks by name and alt line
+       only (`Woody Marks O12.5 rush`), no reasoning — the reasoning stays inside
+       the expanded body, same as before. This is what makes the tab scannable
+       without opening every game: Side/Total/Props at a glance, click only for
+       the *why*.
+     Keep the expanded body exactly as before (prose + per-prop `leg-why` boxes).
    - **Multi Suggestion** — new. Pick 3-5 legs from this week's Best Bets with the
      single strongest conviction — prefer legs with the cleanest hit rate (5-of-5 over
      4-of-5), a validated situational signal rather than just a volume/favorite
@@ -306,8 +322,13 @@ Thursday Night Football kicks off).
     - `reports/results.json`, which feeds the standalone running-results page
       (`public/results.html`, via `api/results.js`) — append one entry per graded
       leg: `{"week": "Week 4", "type": "prop" | "spread" | "total" | "moneyline",
-      "pick": "<plain description>", "result": "win" | "loss" | "push" | "void"}`.
-      Use `"void"` (not `"loss"`) for a pick that turns out to have been wrong at the
+      "pick": "<plain description>", "result": "win" | "loss" | "push" | "void",
+      "actual": "<the real number, e.g. '27 receiving yards' or final score for a
+      spread/total/moneyline leg>"}`. Always include `actual` for a graded prop (the
+      owner specifically wants to see what a losing — or winning — prop actually
+      came in at, not just win/loss) and for any graded game-line pick once those
+      exist; pull it from a real box score the same way step 13's grading does, not
+      a rounded recap figure. Use `"void"` (not `"loss"`) for a pick that turns out to have been wrong at the
       data level rather than the handicapping level — e.g. the Walker/Pacheco
       roster mistake from Week 4 — and say so in the report prose too; a void
       doesn't count toward the win rate either way, but it also shouldn't be
