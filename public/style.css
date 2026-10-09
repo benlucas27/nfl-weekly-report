@@ -282,3 +282,94 @@ ul.plain li::before {
 .archive-item:hover .title { text-decoration: underline; }
 
 .footer-nav { margin-top: 56px; color: var(--muted); font-size: 0.88rem; }
+.footer-nav a + a { margin-left: 16px; }
+
+/* --- tabs (Best Bets / Full Slate / Multi Suggestion) --- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin: 20px 0 0;
+  border-bottom: 1px solid var(--hairline);
+  overflow-x: auto;
+}
+.tab-btn {
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+.tab-panel { display: none; padding-top: 18px; }
+.tab-panel.active { display: block; }
+
+/* --- Best Bets table --- */
+table.bets { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.bets th {
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding: 6px 10px 8px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+table.bets td {
+  padding: 12px 10px 12px 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+table.bets td.pick { font-weight: 600; }
+table.bets td.why { color: var(--muted); font-size: 0.86rem; }
+@media (max-width: 480px) {
+  table.bets, table.bets tbody, table.bets tr { display: block; }
+  table.bets thead { display: none; }
+  table.bets tr { border-bottom: 1px solid var(--hairline); padding: 12px 0; }
+  table.bets td { display: block; padding: 2px 0; border-bottom: none; }
+  table.bets td.why { margin-top: 4px; }
+}
+
+/* --- Multi Suggestion --- */
+.multi-card {
+  border: 1.5px solid var(--text);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 18px 0;
+}
+.multi-card .multi-leg {
+  padding: 10px 0;
+  border-top: 1px dashed var(--hairline);
+}
+.multi-card .multi-leg:first-of-type { border-top: none; }
+.multi-card .multi-leg .leg-name { font-weight: 600; }
+.multi-card .multi-leg .leg-why { color: var(--muted); font-size: 0.88rem; margin-top: 2px; }
+
+/* --- results page --- */
+.stat-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 0 26px; }
+.stat-tile {
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 14px 16px;
+  min-width: 110px;
+  flex: 1;
+}
+.stat-tile .stat-value { font-family: var(--serif); font-size: 1.6rem; }
+.stat-tile .stat-label { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+table.results { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 8px; }
+table.results th {
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding: 6px 10px 8px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+table.results td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+table.results td.week { color: var(--muted); font-size: 0.82rem; white-space: nowrap; }
+table.results td.note { color: var(--muted); font-size: 0.82rem; }

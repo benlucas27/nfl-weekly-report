@@ -23,13 +23,22 @@ Thursday Night Football kicks off).
     re-deriving this by hand each week:
     ```
     python3 pipeline/prop_stats.py --player "Puka Nacua" --opponent SF \
-      --stat receiving_yards --line 79.5
+      --stat receiving_yards --line 79.5 --expect-team LA
     ```
     Returns L5 hit rate, primetime hit rate + sample size, season average, and the
     opponent's defense-vs-position rank (1 = allows the most to that position —
     the best matchup for the prop). `--stat` supports `receiving_yards`,
     `rushing_yards`, `passing_yards`, `receptions`. It caches the two source CSVs
     for ~20h so a week's worth of lookups only downloads each file once.
+    **Always pass `--expect-team`** with whichever team you believe the player is
+    currently on. Players change teams — a Week 4 2026 report put Kenneth Walker III
+    and Isiah Pacheco on their *old* teams (both had already signed elsewhere in
+    free agency), so the picks were tied to games neither of them actually played
+    in. `--expect-team` turns that into a hard failure (the script errors out and
+    reports the player's actual current team) instead of a silent bad pick. Treat
+    that error as a stop sign, not something to retry past — re-derive who the
+    player's team's actual current starter/lead option is before picking anyone
+    for that game.
 - Tracked source list (edit this list as leans/confidence in creators changes; each
   entry was checked for two things — real/established, and has genuinely public
   content, not just a paywalled teaser):
@@ -158,9 +167,10 @@ Thursday Night Football kicks off).
    this week, or an unresolved injury situation. State why.
 
 9. **Write the report.** Follow the exact section structure and HTML/CSS in
-   `public/reports/2026-week-01-sample.html` — that file is the template. Save the
-   new file as `public/reports/<slug>.html` (slug format: `YYYY-week-NN`). Keep
-   both `<div data-subscribe-widget></div>` mounts (near the top, and again near
+   `public/reports/2026-week-05.html` — that file is the current template (supersedes
+   the older `2026-week-01-sample.html`, which predates the tabbed layout below).
+   Save the new file as `public/reports/<slug>.html` (slug format: `YYYY-week-NN`).
+   Keep both `<div data-subscribe-widget></div>` mounts (near the top, and again near
    the bottom before `footer-nav`) and the `<script src="/subscribe-widget.js">`
    tag before `</body>` — every report page needs its own subscribe CTA, not just
    the homepage. Cover
@@ -169,6 +179,29 @@ Thursday Night Football kicks off).
    contains **High Confidence** and **Confident** legs (see tiers below). A game
    with nothing that clears Confident still gets covered in the writeup; it just
    doesn't contribute a leg to the list.
+
+   **Tabbed layout (as of Week 5).** The tabs go right after the lede, since Best
+   Bets/Full Slate/Multi Suggestion are the longest, most look-up-able content —
+   collapsing them is the whole point. "Fade the Public"/line-move color, "Games to
+   Avoid", and "Last Week's Track Record" stay as plain, always-visible sections
+   *below* the tabs, same relative order as before. Three tabs, in this order —
+   Best Bets, Full Slate, Multi Suggestion (`.tabs`/`.tab-panel` in `style.css`; copy
+   the small inline `<script>` at the bottom of the Week 5 file verbatim into each
+   new report for the click-to-switch behavior):
+   - **Best Bets** — now a `<table>`, not a `<ul>`: columns Pick / Market / Tier / Why.
+     One row per leg, same tier rules as before.
+   - **Full Slate** — the same per-game accordion as before, unchanged.
+   - **Multi Suggestion** — new. Pick 3-5 legs from this week's Best Bets with the
+     single strongest conviction — prefer legs with the cleanest hit rate (5-of-5 over
+     4-of-5), a validated situational signal rather than just a volume/favorite
+     narrative, and variety across games (don't bundle three legs from one game; a
+     single bad beat in that game sinks the whole multi for no added diversification).
+     This is an editorial judgment call each week, not a script's output — explain
+     *why* each leg made the cut in one line. **Do not compute or display combined
+     odds/payout** — the point is "these are our most confident reads," not a specific
+     price to hit. If the week doesn't have at least 3 legs worth bundling this way
+     (e.g. a week with no spread/total legs and only thin props), say so plainly
+     instead of forcing weak legs in just to fill the tab.
 
    **Every game gets an alt-line player prop where the data supports it** (not every
    game will). Pull the player's trailing game log via `prop_stats.py` and set the line
@@ -221,6 +254,30 @@ Thursday Night Football kicks off).
      current-season-only, i.e. a single game in Week 2) and disagrees with efficiency
      metrics (Tennessee ranked 21st on it but 28th in run-defense DVOA). Treat it as
      a hint, not a claim.
+   - **Moneyline is a third game-market type, alongside spread and total — check it
+     every week, don't default to spread out of habit.** A moneyline (take-the-team,
+     no points) leg needs its own, different kind of signal: a genuine straight-up
+     win-rate edge, not just "this team is favored" (that's already priced into the
+     moneyline odds, so it's not an edge, it's just chalk). `historical_screen.py`
+     exposes `home_ml_edge_vs_baseline` on every filter's output (via `--filter
+     <name>`, not `--scan`) specifically for this check — but it is **deliberately
+     excluded from `--scan`/`this_week.py`'s automatic signal list**, because for any
+     cohort that's basically defined by "being a favorite" or "being an underdog"
+     (`home_favorite_any`, `home_big_favorite`, `home_underdog`, `home_big_underdog`),
+     that edge is tautological — of course favorites win straight-up more than the
+     whole-league baseline, that's what favorite means, and the market already knows
+     it. A moneyline pick only earns a spot on Best Bets when the edge is a genuine
+     surprise relative to what the spread/odds alone would predict, which in practice
+     means: the spread is close (±3 or so, where ATS and SU are nearly the same bet)
+     **and** you already have a validated situational signal pointing that direction —
+     in that case the same signal can back both the spread AND the moneyline, say so
+     explicitly. Don't invent a moneyline lean from a lopsided-favorite cohort just to
+     have one. Worked example from Week 5: `away_lookahead_trap` backs Tennessee
+     +7.5 ATS (a real, checked edge), but `home_ml_edge_vs_baseline` on that same
+     filter shows the big underdog in that exact trap spot still loses straight-up
+     roughly three games out of four — so that signal supports the spread, not
+     Tennessee on the moneyline. Checking and finding nothing is a fine, honest
+     outcome; say so rather than silently never mentioning moneylines at all.
 
 10. **Update the archive index.** Prepend an entry to `reports/index.json` with
     `slug`, `date`, `week`, `title`, `summary`.
@@ -242,8 +299,21 @@ Thursday Night Football kicks off).
     worth knowing if a similar direct-API call gets added elsewhere.
 
 13. **Grade last week.** Before generating this week's report, check final scores
-    for last week's headline leans and record win/loss in the track-record section
-    (mirrors the history-tracking pattern from the NRL report pipeline).
+    for last week's picks (verify against an actual box score, not a recap summary)
+    and record win/loss in two places:
+    - This week's report, in the "Last Week's Track Record" prose section (plain
+      English, same report-voice rules as everything else).
+    - `reports/results.json`, which feeds the standalone running-results page
+      (`public/results.html`, via `api/results.js`) — append one entry per graded
+      leg: `{"week": "Week 4", "type": "prop" | "spread" | "total" | "moneyline",
+      "pick": "<plain description>", "result": "win" | "loss" | "push" | "void"}`.
+      Use `"void"` (not `"loss"`) for a pick that turns out to have been wrong at the
+      data level rather than the handicapping level — e.g. the Walker/Pacheco
+      roster mistake from Week 4 — and say so in the report prose too; a void
+      doesn't count toward the win rate either way, but it also shouldn't be
+      silently dropped from the history. `results.html` reports player-prop results
+      and game-level results (spread/total/moneyline) as separate running totals,
+      per the split the project owner asked for — don't merge them into one number.
 
 ## Reading the screen/travel output
 

@@ -342,6 +342,7 @@ def run_filter(games, name, team_game_index):
 
     ou_edge = edge(cohort_stats["over_rate"], baseline_stats["over_rate"])
     ats_edge = edge(cohort_stats["home_cover_rate"], baseline_stats["home_cover_rate"])
+    ml_edge = edge(cohort_stats["home_win_rate"], baseline_stats["home_win_rate"])
 
     home_cohort_vol = stat_summary(cohort, team_game_index, "home")
     home_baseline_vol = stat_summary(complement, team_game_index, "home")
@@ -355,8 +356,10 @@ def run_filter(games, name, team_game_index):
         "baseline": baseline_stats,
         "over_under_edge_vs_baseline": ou_edge,
         "home_ats_edge_vs_baseline": ats_edge,
+        "home_ml_edge_vs_baseline": ml_edge,
         "over_under_stderr": round(stderr(cohort_stats["n"]), 3) if cohort_stats["n"] else None,
         "home_ats_stderr": round(stderr(cohort_stats["n"]), 3) if cohort_stats["n"] else None,
+        "home_ml_stderr": round(stderr(cohort_stats["n"]), 3) if cohort_stats["n"] else None,
         "home_team_volume": {"cohort": home_cohort_vol, "baseline": home_baseline_vol,
                               "relative_edge": stat_edges(home_cohort_vol, home_baseline_vol)},
         "away_team_volume": {"cohort": away_cohort_vol, "baseline": away_baseline_vol,
@@ -368,6 +371,13 @@ def is_signal(result, min_n, min_edge, min_stat_edge):
     n = result["cohort"]["n"]
     if n < min_n:
         return False
+    # Note: home_ml_edge_vs_baseline is deliberately NOT checked here. Straight-up win
+    # rate vs. a whole-league baseline is tautological for any favorite/underdog-shaped
+    # cohort (of course a 7+ point favorite wins outright more than the league average —
+    # that's just what "favorite" means, and it's already priced into the moneyline).
+    # It's exposed on the result dict for manual/editorial moneyline due-diligence on a
+    # specific filter (e.g. confirming a big underdog that covers ATS still loses
+    # straight-up most of the time), not as an auto-detected signal.
     for edge_key in ("over_under_edge_vs_baseline", "home_ats_edge_vs_baseline"):
         e = result[edge_key]
         if e is not None and abs(e) >= min_edge:

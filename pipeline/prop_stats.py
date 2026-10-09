@@ -127,7 +127,7 @@ def to_float(v, default=0.0):
         return default
 
 
-def analyze(player_name, opponent_team, stat, line, seasons_back=3):
+def analyze(player_name, opponent_team, stat, line, seasons_back=3, expect_team=None):
     games = load_games()
     stats = load_player_stats()
     game_index = build_game_index(games)
@@ -138,6 +138,23 @@ def analyze(player_name, opponent_team, stat, line, seasons_back=3):
 
     rows.sort(key=lambda r: (int(r["season"]), int(r["week"])))
     position_group = rows[-1].get("position_group", "")
+    player_team = rows[-1].get("team") or rows[-1].get("recent_team")
+
+    # Players change teams (free agency, trades) between and even within seasons —
+    # this exact mistake (building a prop off a player's OLD team) put Kenneth Walker III
+    # and Isiah Pacheco, both since-moved players, into the Week 4 2026 report tied to
+    # games neither of them actually played in. --expect-team makes that a hard stop
+    # instead of a silent bad pick: pass the team you believe this player is on, and a
+    # mismatch fails loudly here rather than downstream in a published report.
+    if expect_team and player_team and expect_team.strip().upper() != player_team.strip().upper():
+        return {
+            "error": (
+                f"Team mismatch: you expected '{player_name}' to be on {expect_team.strip().upper()}, "
+                f"but their most recent stats row has them on {player_team}. "
+                f"Double-check the roster before using this player in a pick."
+            ),
+            "player_team": player_team,
+        }
 
     # Last 5 games played (any slot)
     last5 = rows[-5:]
@@ -186,6 +203,7 @@ def analyze(player_name, opponent_team, stat, line, seasons_back=3):
 
     return {
         "player": player_name,
+        "player_team": player_team,
         "position_group": position_group,
         "stat": stat,
         "line": line,
@@ -209,9 +227,11 @@ def main():
     ap.add_argument("--stat", required=True, choices=sorted(STAT_TO_POSITIONS.keys()))
     ap.add_argument("--line", required=True, type=float)
     ap.add_argument("--seasons-back", type=int, default=3)
+    ap.add_argument("--expect-team", help="team abbrev you believe this player is currently on, e.g. SEA — "
+                                           "fails loudly on a mismatch instead of silently using a stale roster")
     args = ap.parse_args()
 
-    result = analyze(args.player, args.opponent, args.stat, args.line, args.seasons_back)
+    result = analyze(args.player, args.opponent, args.stat, args.line, args.seasons_back, args.expect_team)
     print(json.dumps(result, indent=2))
     if "error" in result:
         sys.exit(1)

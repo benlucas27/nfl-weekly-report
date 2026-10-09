@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Track Record &mdash; NFL Weekly Market Report</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <span class="tag">Track Record</span>
+    <h1>Running Results</h1>
+    <p class="lede">
+      Every graded pick we've published, split the way we actually bet them: player props on one side,
+      game lines &mdash; spreads, totals, and moneylines &mdash; on the other. A pick marked <b>void</b> means
+      we got something wrong at the data level (the wrong player, the wrong team) rather than the handicapping
+      level; it's excluded from the win rate but never hidden.
+    </p>
+
+    <h2>Player Props</h2>
+    <div class="stat-row" id="prop-stats"></div>
+    <table class="results" id="prop-table"><tbody></tbody></table>
+    <p class="section-note" id="prop-empty" style="display:none;">No player-prop picks graded yet.</p>
+
+    <h2>Game Lines</h2>
+    <p class="section-note">Spreads, totals, and moneylines, tracked separately below &mdash; a spread signal doesn't always mean the same team is a good moneyline play, so we grade them apart.</p>
+    <div class="stat-row" id="game-stats"></div>
+    <table class="results" id="game-table"><tbody></tbody></table>
+    <p class="section-note" id="game-empty" style="display:none;">No spread, total, or moneyline picks graded yet &mdash; most weeks haven't cleared our bar for either market so far.</p>
+
+    <div class="footer-nav">
+      <a href="/archive.html">&larr; All reports</a>
+      <a href="/">Home</a>
+    </div>
+  </div>
+
+  <script>
+    const TYPE_LABEL = { prop: 'Prop', spread: 'Spread', total: 'Total', moneyline: 'Moneyline' };
+    const RESULT_LABEL = { win: 'Win', loss: 'Loss', push: 'Push', void: 'Void' };
+    const RESULT_CLASS = { win: 'over', loss: 'under', push: 'avoid', void: 'avoid' };
+
+    function record(rows) {
+      const win = rows.filter((r) => r.result === 'win').length;
+      const loss = rows.filter((r) => r.result === 'loss').length;
+      const push = rows.filter((r) => r.result === 'push').length;
+      const voidCt = rows.filter((r) => r.result === 'void').length;
+      const decided = win + loss;
+      const pct = decided ? Math.round((win / decided) * 100) : null;
+      return { win, loss, push, voidCt, pct };
+    }
+
+    function statTile(label, rows) {
+      const { win, loss, push, voidCt, pct } = record(rows);
+      const value = rows.length ? `${win}-${loss}${push ? `-${push}` : ''}` : '0-0';
+      const sub = rows.length ? (pct !== null ? `${pct}% hit` : 'no decided picks') + (voidCt ? ` &middot; ${voidCt} void` : '') : 'no picks yet';
+      return `<div class="stat-tile"><div class="stat-value">${value}</div><div class="stat-label">${label}</div><div class="stat-label" style="margin-top:6px;">${sub}</div></div>`;
+    }
+
+    function renderTable(tableEl, emptyEl, rows) {
+      if (!rows.length) {
+        tableEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      tableEl.style.display = '';
+      emptyEl.style.display = 'none';
+      const tbody = tableEl.querySelector('tbody');
+      tbody.innerHTML = `<tr><th>Week</th><th>Pick</th><th>Result</th></tr>` + rows
+        .map((r) => {
+          const cls = RESULT_CLASS[r.result] || 'avoid';
+          const label = RESULT_LABEL[r.result] || r.result;
+          const note = r.note ? `<div class="note">${r.note}</div>` : '';
+          return `<tr>
+            <td class="week">${r.week}</td>
+            <td>${r.pick}${note}</td>
+            <td><span class="label ${cls}">${label}</span></td>
+          </tr>`;
+        })
+        .join('');
+    }
+
+    fetch('/api/results')
+      .then((r) => r.json())
+      .then(({ results }) => {
+        const all = results || [];
+        const byWeekDesc = (a, b) => (a.week < b.week ? 1 : -1);
+
+        const props = all.filter((r) => r.type === 'prop').sort(byWeekDesc);
+        document.getElementById('prop-stats').innerHTML = statTile('Overall', props);
+        renderTable(document.getElementById('prop-table'), document.getElementById('prop-empty'), props);
+
+        const spreads = all.filter((r) => r.type === 'spread');
+        const totals = all.filter((r) => r.type === 'total');
+        const moneylines = all.filter((r) => r.type === 'moneyline');
+        const games = [...spreads, ...totals, ...moneylines].sort(byWeekDesc);
+        document.getElementById('game-stats').innerHTML =
+          statTile('Spread', spreads) + statTile('Total', totals) + statTile('Moneyline', moneylines);
+        renderTable(document.getElementById('game-table'), document.getElementById('game-empty'), games);
+      })
+      .catch(() => {
+        document.getElementById('prop-empty').style.display = 'block';
+        document.getElementById('game-empty').style.display = 'block';
+      });
+  </script>
+</body>
+</html>
